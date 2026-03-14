@@ -15,75 +15,87 @@ firebase_admin.initialize_app(cred, {
 })
 
 def get_fear_greed():
+    """Alternative.me API - 무료, 키 불필요"""
     try:
-        url = "https://fear-and-greed-index.p.rapidapi.com/v1/fgi"
-        headers = {
-            "x-rapidapi-host": "fear-and-greed-index.p.rapidapi.com",
-            "x-rapidapi-key": "test"
+        res = requests.get(
+            "https://api.alternative.me/fng/?limit=1",
+            timeout=10
+        )
+        data = res.json()
+        val = int(data['data'][0]['value'])
+        status = data['data'][0]['value_classification']
+        # 한국어 변환
+        status_map = {
+            "Extreme Fear": "극도의 공포",
+            "Fear": "공포",
+            "Neutral": "중립",
+            "Greed": "탐욕",
+            "Extreme Greed": "극도의 탐욕"
         }
-        res = requests.get(url, headers=headers, timeout=5)
-        val = res.json()['fgi']['now']['value']
-        return int(val)
-    except:
-        # API 실패시 VIX 기반 근사치 사용
-        return None
-
-def get_fear_status(val):
-    if val <= 25: return "극도의 공포"
-    elif val <= 40: return "공포"
-    elif val <= 60: return "중립"
-    elif val <= 75: return "탐욕"
-    else: return "극도의 탐욕"
+        return val, status_map.get(status, status)
+    except Exception as e:
+        print(f"공포탐욕 API 실패: {e}")
+        return None, None
 
 def get_market_data():
     korea = pytz.timezone('Asia/Seoul')
     now = datetime.now(korea).strftime('%Y-%m-%d %H:%M')
 
+    # 주가 데이터
     fngu = yf.Ticker("FNGU")
+    soxl = yf.Ticker("SOXL")
     sp500 = yf.Ticker("^GSPC")
     nasdaq = yf.Ticker("^IXIC")
     vix = yf.Ticker("^VIX")
 
     fngu_info = fngu.fast_info
+    soxl_info = soxl.fast_info
     sp_info = sp500.fast_info
     nq_info = nasdaq.fast_info
     vix_info = vix.fast_info
 
+    # FNGU
     fngu_price = round(fngu_info.last_price, 2)
-    fngu_prev = fngu_info.previous_close
-    fngu_change = round((fngu_price - fngu_prev) / fngu_prev * 100, 2)
-
+    fngu_change = round((fngu_price - fngu_info.previous_close) / fngu_info.previous_close * 100, 2)
     fngu_hist = fngu.history(period="ytd")
     fngu_ytd = round((fngu_price - fngu_hist['Close'].iloc[0]) / fngu_hist['Close'].iloc[0] * 100, 2)
 
+    # SOXL
+    soxl_price = round(soxl_info.last_price, 2)
+    soxl_hist = soxl.history(period="ytd")
+    soxl_ytd = round((soxl_price - soxl_hist['Close'].iloc[0]) / soxl_hist['Close'].iloc[0] * 100, 2)
+
+    # S&P500
     sp_price = round(sp_info.last_price, 2)
     sp_change = round((sp_price - sp_info.previous_close) / sp_info.previous_close * 100, 2)
+    sp_hist = sp500.history(period="ytd")
+    sp_ytd = round((sp_price - sp_hist['Close'].iloc[0]) / sp_hist['Close'].iloc[0] * 100, 2)
+
+    # NASDAQ
     nq_price = int(nq_info.last_price)
+    nq_hist = nasdaq.history(period="ytd")
+    nq_ytd = round((nq_price - nq_hist['Close'].iloc[0]) / nq_hist['Close'].iloc[0] * 100, 2)
+
+    # VIX
     vix_price = round(vix_info.last_price, 2)
 
-    # 공포탐욕 지수 - CNN API 우선, 실패시 VIX 기반
-    fear = get_fear_greed()
+    # 공포탐욕 - Alternative.me 실시간
+    fear, fear_status = get_fear_greed()
     if fear is None:
-        if vix_price >= 40: fear = 10
-        elif vix_price >= 30: fear = 20
-        elif vix_price >= 20: fear = 35
-        else: fear = 55
-    fear_status = get_fear_status(fear)
+        # API 실패시 VIX 기반 근사치
+        if vix_price >= 40: fear, fear_status = 10, "극도의 공포"
+        elif vix_price >= 30: fear, fear_status = 22, "극도의 공포"
+        elif vix_price >= 20: fear, fear_status = 38, "공포"
+        else: fear, fear_status = 55, "중립"
 
-    # 매수 신호 판단
+    # 매수 체크리스트
     checks = 0
     if fear <= 25: checks += 1
     if vix_price >= 30: checks += 1
-    if fngu_ytd <= -20: checks += 1
-    sp_ytd = round((sp_price - 5881) / 5881 * 100, 2)  # 2026 연초 기준
     if sp_ytd <= -10: checks += 1
-    nq_ytd = round((nq_price - 19310) / 19310 * 100, 2)
-    if nq_ytd <= -15: checks += 1
-    soxl = yf.Ticker("SOXL")
-    soxl_ytd_hist = soxl.history(period="ytd")
-    soxl_price = round(soxl.fast_info.last_price, 2)
-    soxl_ytd = round((soxl_price - soxl_ytd_hist['Close'].iloc[0]) / soxl_ytd_hist['Close'].iloc[0] * 100, 2)
+    if fngu_ytd <= -20: checks += 1
     if soxl_ytd <= -20: checks += 1
+    if nq_ytd <= -15: checks += 1
 
     buy_readiness = round(checks / 6 * 100)
 
@@ -124,5 +136,6 @@ def get_market_data():
 
 data = get_market_data()
 db.reference('/').set(data)
-print("✅ Firebase 업데이트 완료:", data['market']['last_updated'])
-print("매수 준비도:", data['signal']['buy_readiness'], "%")
+print("✅ 업데이트 완료:", data['market']['last_updated'])
+print("공포탐욕:", data['market']['fear_greed'], data['market']['fear_greed_status'])
+print("매수준비도:", data['signal']['buy_readiness'], "%", f"({data['signal']['checks']}/6)")
