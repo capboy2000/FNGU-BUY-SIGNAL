@@ -9,45 +9,57 @@
             --bg: #0f172a; --bg2: #1e293b; --bg3: #334155;
             --text: #f1f5f9; --text2: #cbd5e1; --muted: #94a3b8;
             --accent: #38bdf8; --green: #22c55e; --yellow: #f59e0b;
-            --red: #ef4444; --border: rgba(148,163,184,0.15);
+            --red: #ef4444; --border: rgba(148,163,184,0.12);
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); padding:10px; }
+        body { font-family:-apple-system,'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); padding:10px; }
         .wrap { max-width:440px; margin:0 auto; }
         header { text-align:center; padding-bottom:10px; border-bottom:1px solid var(--border); margin-bottom:10px; }
         header h1 { font-size:1.05rem; color:var(--accent); font-weight:800; }
-        header p { font-size:0.68rem; color:#64748b; margin-top:3px; }
+        header p { font-size:0.65rem; color:#64748b; margin-top:3px; }
         .header-row { display:flex; justify-content:center; align-items:center; gap:10px; margin-top:6px; }
-        .updated { font-size:0.65rem; color:#64748b; }
-        .refresh { background:var(--bg2); border:1px solid var(--bg3); color:var(--accent); padding:3px 10px; border-radius:20px; font-size:0.65rem; cursor:pointer; }
+        .updated { font-size:0.63rem; color:#64748b; }
+        .refresh { background:var(--bg2); border:1px solid var(--bg3); color:var(--accent); padding:3px 10px; border-radius:20px; font-size:0.63rem; cursor:pointer; }
         .card { background:var(--bg2); border-radius:10px; padding:12px; border:1px solid var(--border); margin-bottom:6px; }
         .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:6px; }
-        .card-title { font-size:0.72rem; font-weight:700; color:var(--muted); margin-bottom:6px; }
         .card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
-        .card-name { font-size:0.8rem; font-weight:800; }
+        .card-name { font-size:0.82rem; font-weight:800; }
+        .card-title { font-size:0.72rem; font-weight:700; color:var(--muted); margin-bottom:6px; }
         .badge { padding:2px 6px; border-radius:8px; font-size:0.58rem; font-weight:700; }
         .badge-red { background:#ef444422; color:var(--red); border:1px solid #ef444444; }
         .badge-yellow { background:#f59e0b22; color:var(--yellow); border:1px solid #f59e0b44; }
-        .price { font-size:1.6rem; font-weight:800; line-height:1.1; }
-        .change { font-size:0.68rem; margin-bottom:4px; }
+        .price { font-size:1.55rem; font-weight:800; line-height:1.1; }
+        .price-lg { font-size:2rem; font-weight:900; line-height:1; }
+        .change { font-size:0.67rem; margin-bottom:4px; }
+        .pos { color:var(--green); } .neg { color:var(--red); }
         .row { display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid var(--border); }
         .row:last-child { border:none; }
         .rl { color:var(--muted); font-size:0.68rem; }
         .rv { font-weight:700; font-size:0.68rem; }
-        .pos { color:var(--green); } .neg { color:var(--red); }
-        .checklist-item { display:flex; align-items:center; padding:5px 8px; margin:3px 0; background:var(--bg); border-radius:6px; }
+        .bar { width:100%; height:6px; background:var(--bg); border-radius:3px; overflow:hidden; margin-top:4px; }
+        .bar-fill { height:100%; border-radius:3px; transition:width 0.8s ease; }
+        .cl-item { display:flex; align-items:center; padding:5px 8px; margin:3px 0; background:var(--bg); border-radius:6px; }
         .chk { width:18px; height:18px; border-radius:4px; margin-right:8px; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; flex-shrink:0; color:white; }
         .chk-y { background:var(--green); }
         .chk-n { background:var(--bg2); border:1px solid var(--bg3); }
         .cl-text { font-size:0.72rem; flex:1; color:var(--text2); }
         .cl-val { font-size:0.72rem; font-weight:700; margin-left:4px; }
-        .bar { width:100%; height:6px; background:var(--bg); border-radius:3px; overflow:hidden; margin-top:4px; }
-        .bar-fill { height:100%; border-radius:3px; transition:width 0.8s ease; }
         footer { text-align:center; padding:8px 0; border-top:1px solid var(--border); color:#475569; font-size:0.62rem; margin-top:6px; }
         footer a { color:var(--accent); text-decoration:none; }
 
-        /* 속도계 */
-        #gauge-needle { transition: all 1.2s cubic-bezier(0.34,1.56,0.64,1); }
+        /* 시그널 미터 */
+        .signal-meter { border-radius:12px; padding:14px 16px; margin-bottom:6px; }
+        .signal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+        .signal-title { font-size:0.78rem; font-weight:800; }
+        .signal-checks { font-size:0.7rem; color:var(--muted); }
+        .led-bar { display:flex; gap:3px; margin-bottom:8px; }
+        .led-seg { flex:1; height:20px; border-radius:3px; background:var(--bg2); transition:background 0.05s ease, box-shadow 0.05s ease; }
+        .signal-bottom { display:flex; justify-content:space-between; align-items:center; }
+        .signal-side { font-size:0.65rem; font-weight:700; }
+        .signal-center { text-align:center; }
+        .signal-pct { font-size:1.8rem; font-weight:900; line-height:1; }
+        .signal-label { font-size:0.72rem; font-weight:700; margin-top:2px; }
+        .signal-strategy { margin-top:8px; padding:5px 8px; background:var(--bg); border-radius:6px; font-size:0.65rem; color:var(--muted); text-align:center; }
     </style>
 </head>
 <body>
@@ -63,53 +75,22 @@
         </div>
     </header>
 
-    <!-- 속도계 -->
-    <div class="card" style="text-align:center;">
-        <div class="card-title" style="text-align:center;">📊 매수 신호 강도</div>
-        <svg id="gauge-svg" viewBox="0 0 220 165" style="width:100%;max-width:280px;display:block;margin:0 auto;">
-            <defs>
-                <radialGradient id="dialBg" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#1a2235"/>
-                    <stop offset="100%" stop-color="#0a0f1a"/>
-                </radialGradient>
-                <filter id="glow">
-                    <feGaussianBlur stdDeviation="2" result="blur"/>
-                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-            </defs>
-            <!-- 외부 링 -->
-            <circle cx="110" cy="110" r="104" fill="url(#dialBg)" stroke="#2a3a55" stroke-width="1"/>
-            <circle cx="110" cy="110" r="101" fill="none" stroke="#0a1020" stroke-width="3"/>
-            <circle cx="110" cy="110" r="97" fill="url(#dialBg)"/>
-            <!-- 배경 트랙 -->
-            <path id="track-bg" fill="none" stroke="#1e3050" stroke-width="10" stroke-linecap="round"/>
-            <!-- 색상 구간 -->
-            <path id="zone-red" fill="none" stroke="#ef4444" stroke-width="10" opacity="0.3"/>
-            <path id="zone-yellow" fill="none" stroke="#f59e0b" stroke-width="10" opacity="0.3"/>
-            <path id="zone-green" fill="none" stroke="#22c55e" stroke-width="10" opacity="0.3"/>
-            <!-- 진행 호 -->
-            <path id="gauge-progress" fill="none" stroke-width="10" stroke-linecap="round" filter="url(#glow)"/>
-            <!-- 눈금 -->
-            <g id="ticks"></g>
-            <!-- 구간 라벨 -->
-            <text id="lbl-left" fill="#ef4444" font-size="7" font-weight="700" opacity="0.8" text-anchor="middle">관망</text>
-            <text id="lbl-mid" fill="#f59e0b" font-size="7" font-weight="700" opacity="0.8" text-anchor="middle">부분</text>
-            <text id="lbl-right" fill="#22c55e" font-size="7" font-weight="700" opacity="0.8" text-anchor="middle">강력</text>
-            <!-- 중앙 값 -->
-            <text id="gauge-pct" x="110" y="100" fill="white" font-size="28" font-weight="800" text-anchor="middle" dominant-baseline="middle">0%</text>
-            <text id="gauge-label" x="110" y="122" fill="#f59e0b" font-size="9" font-weight="700" text-anchor="middle">관망</text>
-            <!-- 바늘 -->
-            <line id="gauge-needle" x1="110" y1="110" x2="25" y2="158" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
-            <!-- 중심 캡 -->
-            <circle cx="110" cy="110" r="8" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
-            <circle cx="110" cy="110" r="4" fill="#64748b"/>
-            <!-- 하단 라벨 -->
-            <text x="110" y="148" fill="#64748b" font-size="7" text-anchor="middle">매수 신호 강도</text>
-        </svg>
-        <div style="font-size:0.7rem;color:#64748b;margin-top:2px;">
-            <span id="gauge-checks">-</span>/6 조건 충족 ·
-            <span id="gauge-strategy" style="font-weight:700;">-</span>
+    <!-- 시그널 미터 -->
+    <div class="signal-meter" id="signal-meter">
+        <div class="signal-header">
+            <span class="signal-title" id="signal-title">📡 매수 신호</span>
+            <span class="signal-checks"><span id="signal-checks">-</span>/6 조건</span>
         </div>
+        <div class="led-bar" id="led-bar"></div>
+        <div class="signal-bottom">
+            <span class="signal-side" style="color:var(--green);">🟢 관망</span>
+            <div class="signal-center">
+                <div class="signal-pct" id="signal-pct">-</div>
+                <div class="signal-label" id="signal-label">-</div>
+            </div>
+            <span class="signal-side" style="color:var(--red);">🔴 강력매수</span>
+        </div>
+        <div class="signal-strategy" id="signal-strategy">-</div>
     </div>
 
     <!-- FNGU / SOXL -->
@@ -120,8 +101,8 @@
                 <span class="badge badge-red" id="fngu-badge">-</span>
             </div>
             <div class="price" id="fngu-price">-</div>
-            <div class="change neg" id="fngu-change">-</div>
-            <div class="row"><span class="rl">연초대비</span><span class="rv neg" id="fngu-ytd">-</span></div>
+            <div class="change" id="fngu-change">-</div>
+            <div class="row"><span class="rl">연초대비</span><span class="rv" id="fngu-ytd">-</span></div>
             <div class="row"><span class="rl">52주 최고</span><span class="rv">$34.14</span></div>
             <div class="row"><span class="rl">52주 최저</span><span class="rv">$7.95</span></div>
         </div>
@@ -141,43 +122,43 @@
     <!-- 공포탐욕 / S&P -->
     <div class="grid2">
         <div class="card">
-            <div class="card-title">😱 공포·탐욕 지수</div>
-            <div class="price" id="fear-val" style="color:#ef4444;">-</div>
-            <div class="change" id="fear-status" style="color:#ef4444;">-</div>
-            <div class="bar"><div class="bar-fill" id="fear-bar" style="background:#ef4444;width:0%;"></div></div>
-            <div style="font-size:0.6rem;color:#475569;margin-top:4px;">0 극공포 ←→ 100 극탐욕</div>
+            <div class="card-title">😱 공포·탐욕</div>
+            <div class="price-lg" id="fear-val">-</div>
+            <div class="change" id="fear-status">-</div>
+            <div class="bar"><div class="bar-fill" id="fear-bar" style="width:0%;"></div></div>
+            <div style="font-size:0.58rem;color:#475569;margin-top:4px;">0 극공포 ←→ 100 극탐욕</div>
         </div>
         <div class="card">
             <div class="card-title">📈 S&amp;P500</div>
             <div class="price" id="sp500-big">-</div>
-            <div class="change neg" id="sp500-change">-</div>
-            <div class="row"><span class="rl">연초대비</span><span class="rv neg" id="sp500-ytd">-</span></div>
-            <div class="row"><span class="rl">NASDAQ YTD</span><span class="rv neg" id="nasdaq-ytd">-</span></div>
+            <div class="change" id="sp500-change">-</div>
+            <div class="row"><span class="rl">연초대비</span><span class="rv" id="sp500-ytd">-</span></div>
+            <div class="row"><span class="rl">NASDAQ YTD</span><span class="rv" id="nasdaq-ytd">-</span></div>
         </div>
     </div>
 
     <!-- 체크리스트 -->
     <div class="card">
         <div style="font-size:0.8rem;font-weight:800;color:var(--accent);margin-bottom:8px;">🎯 매수 체크리스트</div>
-        <div class="checklist-item" id="ci1"><div class="chk chk-n" id="chk1"></div><span class="cl-text">공포지수 25↓</span><span class="cl-val" id="cv1">-</span></div>
-        <div class="checklist-item" id="ci2"><div class="chk chk-n" id="chk2"></div><span class="cl-text">VIX 30↑</span><span class="cl-val" id="cv2">-</span></div>
-        <div class="checklist-item" id="ci3"><div class="chk chk-n" id="chk3"></div><span class="cl-text">S&amp;P -10%↓</span><span class="cl-val" id="cv3">-</span></div>
-        <div class="checklist-item" id="ci4"><div class="chk chk-n" id="chk4"></div><span class="cl-text">FNGU -20%↓</span><span class="cl-val" id="cv4">-</span></div>
-        <div class="checklist-item" id="ci5"><div class="chk chk-n" id="chk5"></div><span class="cl-text">SOXL -20%↓</span><span class="cl-val" id="cv5">-</span></div>
-        <div class="checklist-item" id="ci6"><div class="chk chk-n" id="chk6"></div><span class="cl-text">NASDAQ -15%↓</span><span class="cl-val" id="cv6">-</span></div>
+        <div class="cl-item" id="ci1"><div class="chk chk-n" id="chk1"></div><span class="cl-text">공포지수 25↓</span><span class="cl-val" id="cv1">-</span></div>
+        <div class="cl-item" id="ci2"><div class="chk chk-n" id="chk2"></div><span class="cl-text">VIX 30↑</span><span class="cl-val" id="cv2">-</span></div>
+        <div class="cl-item" id="ci3"><div class="chk chk-n" id="chk3"></div><span class="cl-text">S&amp;P -10%↓</span><span class="cl-val" id="cv3">-</span></div>
+        <div class="cl-item" id="ci4"><div class="chk chk-n" id="chk4"></div><span class="cl-text">FNGU -20%↓</span><span class="cl-val" id="cv4">-</span></div>
+        <div class="cl-item" id="ci5"><div class="chk chk-n" id="chk5"></div><span class="cl-text">SOXL -20%↓</span><span class="cl-val" id="cv5">-</span></div>
+        <div class="cl-item" id="ci6"><div class="chk chk-n" id="chk6"></div><span class="cl-text">NASDAQ -15%↓</span><span class="cl-val" id="cv6">-</span></div>
         <div style="margin-top:8px;padding:6px 8px;background:var(--bg);border-radius:6px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;justify-content:space-between;">
                 <span style="font-size:0.7rem;color:var(--muted);">매수 준비도</span>
                 <span style="font-size:0.75rem;font-weight:800;" id="readiness-pct">-</span>
             </div>
-            <div class="bar"><div class="bar-fill" id="readiness-bar" style="background:var(--yellow);width:0%;"></div></div>
+            <div class="bar"><div class="bar-fill" id="readiness-bar" style="width:0%;"></div></div>
         </div>
     </div>
 
     <!-- 전략 -->
     <div class="card" style="border-left:3px solid var(--yellow);">
         <div style="font-size:0.78rem;font-weight:800;color:var(--yellow);margin-bottom:6px;" id="strategy-title">⚠️ 로딩 중...</div>
-        <div style="font-size:0.68rem;color:var(--muted);line-height:1.7;">
+        <div style="font-size:0.67rem;color:var(--muted);line-height:1.7;">
             <strong style="color:var(--text);">FNGU</strong> 30% 선매수 → VIX 35+ 또는 $15↓ 시 추가<br>
             <strong style="color:var(--text);">SOXL</strong> $40↓ 시 1차, $30대 시 본격 검토<br>
             <strong style="color:var(--text);">분할</strong> 1단계 30% · 2단계 30% · 3단계 40%
@@ -217,145 +198,120 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const CX = 110, CY = 110, R = 85;
-const START_DEG = 220, TOTAL_DEG = 240;
+const SEGMENTS = 20;
 
-function toRad(deg) { return deg * Math.PI / 180; }
-
-function arcPath(startPct, endPct) {
-    const s = toRad(START_DEG - (startPct/100)*TOTAL_DEG);
-    const e = toRad(START_DEG - (endPct/100)*TOTAL_DEG);
-    const x1 = CX + R*Math.cos(s), y1 = CY + R*Math.sin(s);
-    const x2 = CX + R*Math.cos(e), y2 = CY + R*Math.sin(e);
-    const large = (endPct - startPct) > 50 ? 1 : 0;
-    return `M${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${large},0 ${x2.toFixed(2)},${y2.toFixed(2)}`;
+function initLED() {
+    const bar = document.getElementById('led-bar');
+    for (let i = 0; i < SEGMENTS; i++) {
+        const seg = document.createElement('div');
+        seg.className = 'led-seg';
+        seg.id = 'led-' + i;
+        bar.appendChild(seg);
+    }
 }
 
-function initGauge() {
-    document.getElementById('track-bg').setAttribute('d', arcPath(0, 100));
-    document.getElementById('zone-red').setAttribute('d', arcPath(0, 33));
-    document.getElementById('zone-yellow').setAttribute('d', arcPath(33, 60));
-    document.getElementById('zone-green').setAttribute('d', arcPath(60, 100));
-
-    // 눈금
-    const ticksG = document.getElementById('ticks');
-    for (let i = 0; i <= 10; i++) {
-        const deg = START_DEG - (i/10)*TOTAL_DEG;
-        const rad = toRad(deg);
-        const isMajor = i % 2 === 0;
-        const inner = isMajor ? 68 : 73;
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', (CX + inner*Math.cos(rad)).toFixed(2));
-        line.setAttribute('y1', (CY + inner*Math.sin(rad)).toFixed(2));
-        line.setAttribute('x2', (CX + R*Math.cos(rad)).toFixed(2));
-        line.setAttribute('y2', (CY + R*Math.sin(rad)).toFixed(2));
-        line.setAttribute('stroke', isMajor ? '#94a3b8' : '#475569');
-        line.setAttribute('stroke-width', isMajor ? '2' : '1');
-        ticksG.appendChild(line);
+function animateLED(pct) {
+    for (let i = 0; i < SEGMENTS; i++) {
+        const threshold = (i / SEGMENTS) * 100;
+        const seg = document.getElementById('led-' + i);
+        const segColor = threshold >= 60 ? '#ef4444' : threshold >= 33 ? '#f59e0b' : '#22c55e';
+        setTimeout(() => {
+            if (pct > threshold) {
+                seg.style.background = segColor;
+                seg.style.boxShadow = `0 0 6px ${segColor}88`;
+            }
+        }, i * 40);
     }
-
-    // 구간 라벨 위치
-    const setLbl = (id, pct, offset=52) => {
-        const deg = START_DEG - (pct/100)*TOTAL_DEG;
-        const rad = toRad(deg);
-        const el = document.getElementById(id);
-        el.setAttribute('x', (CX + offset*Math.cos(rad)).toFixed(1));
-        el.setAttribute('y', (CY + offset*Math.sin(rad)).toFixed(1));
-    };
-    setLbl('lbl-left', 5);
-    setLbl('lbl-mid', 50, 54);
-    setLbl('lbl-right', 93);
-}
-
-function updateGauge(pct) {
-    const color = pct >= 60 ? '#22c55e' : pct >= 30 ? '#f59e0b' : '#ef4444';
-    const label = pct >= 60 ? '강력 매수' : pct >= 30 ? '부분 매수' : '관망';
-
-    // 진행 호
-    if (pct > 0) {
-        document.getElementById('gauge-progress').setAttribute('d', arcPath(0, pct));
-        document.getElementById('gauge-progress').setAttribute('stroke', color);
-    }
-
-    // 바늘
-    const deg = START_DEG - (pct/100)*TOTAL_DEG;
-    const rad = toRad(deg);
-    const nx = CX + 78*Math.cos(rad);
-    const ny = CY + 78*Math.sin(rad);
-    const bx = CX + 8*Math.cos(toRad(deg+180));
-    const by = CY + 8*Math.sin(toRad(deg+180));
-    const needle = document.getElementById('gauge-needle');
-    needle.setAttribute('x1', bx.toFixed(2));
-    needle.setAttribute('y1', by.toFixed(2));
-    needle.setAttribute('x2', nx.toFixed(2));
-    needle.setAttribute('y2', ny.toFixed(2));
-    needle.setAttribute('stroke', color);
-
-    // 텍스트
-    const pctEl = document.getElementById('gauge-pct');
-    pctEl.textContent = pct + '%';
-    pctEl.setAttribute('fill', color);
-    pctEl.style.filter = `drop-shadow(0 0 8px ${color})`;
-    document.getElementById('gauge-label').textContent = label;
-    document.getElementById('gauge-label').setAttribute('fill', color);
 }
 
 function setChk(n, ok, val) {
-    const chk = document.getElementById('chk'+n);
-    const ci = document.getElementById('ci'+n);
+    const chk = document.getElementById('chk' + n);
+    const ci = document.getElementById('ci' + n);
+    const cv = document.getElementById('cv' + n);
     chk.className = 'chk ' + (ok ? 'chk-y' : 'chk-n');
     chk.textContent = ok ? '✓' : '';
     ci.style.border = `1px solid ${ok ? '#22c55e33' : '#ef444422'}`;
-    const cv = document.getElementById('cv'+n);
     cv.textContent = val + (ok ? ' ✅' : ' ❌');
     cv.style.color = ok ? '#22c55e' : '#ef4444';
 }
 
-initGauge();
+initLED();
 
 get(ref(db, '/')).then((snapshot) => {
     if (!snapshot.exists()) return;
     const d = snapshot.val();
     const m = d.market, s = d.signal;
 
+    // 날짜
     document.getElementById('last-updated').textContent = m.last_updated;
     document.getElementById('footer-date').textContent = m.last_updated;
+
+    // 시그널 색상 (관망=초록, 부분=노랑, 강력=빨강)
+    const sColor = s.buy_readiness >= 60 ? '#ef4444' : s.buy_readiness >= 30 ? '#f59e0b' : '#22c55e';
+    const sBg = s.buy_readiness >= 60 ? '#1c0505' : s.buy_readiness >= 30 ? '#1c1107' : '#052e16';
+    const sLabel = s.buy_readiness >= 60 ? '🔴 강력 매수' : s.buy_readiness >= 30 ? '🟡 부분 매수' : '🟢 관망';
+
+    const meter = document.getElementById('signal-meter');
+    meter.style.background = sBg;
+    meter.style.border = `1px solid ${sColor}44`;
+
+    const st = document.getElementById('signal-title');
+    st.textContent = '📡 매수 신호';
+    st.style.color = sColor;
+
+    document.getElementById('signal-checks').textContent = s.checks;
+    document.getElementById('signal-pct').textContent = s.buy_readiness + '%';
+    document.getElementById('signal-pct').style.color = sColor;
+    document.getElementById('signal-pct').style.textShadow = `0 0 20px ${sColor}`;
+    document.getElementById('signal-label').textContent = sLabel;
+    document.getElementById('signal-label').style.color = sColor;
+    document.getElementById('signal-strategy').textContent = s.strategy;
+
+    setTimeout(() => animateLED(s.buy_readiness), 400);
 
     // FNGU
     document.getElementById('fngu-price').textContent = '$' + m.fngu_price;
     const fc = document.getElementById('fngu-change');
     fc.textContent = (m.fngu_change > 0 ? '+' : '') + m.fngu_change + '% 오늘';
     fc.className = 'change ' + (m.fngu_change < 0 ? 'neg' : 'pos');
-    document.getElementById('fngu-ytd').textContent = m.fngu_ytd + '%';
+    const fy = document.getElementById('fngu-ytd');
+    fy.textContent = m.fngu_ytd + '%';
+    fy.className = 'rv ' + (m.fngu_ytd < 0 ? 'neg' : 'pos');
     document.getElementById('fngu-badge').textContent = s.fngu_status;
 
     // SOXL
     document.getElementById('soxl-price').textContent = '$' + m.soxl_price;
-    const sc = document.getElementById('soxl-ytd');
-    sc.textContent = '연초대비 ' + m.soxl_ytd + '%';
-    sc.className = 'change ' + (m.soxl_ytd < 0 ? 'neg' : 'pos');
+    const sy = document.getElementById('soxl-ytd');
+    sy.textContent = '연초대비 ' + m.soxl_ytd + '%';
+    sy.className = 'change ' + (m.soxl_ytd < 0 ? 'neg' : 'pos');
 
     // 지수
     document.getElementById('vix-val').textContent = m.vix;
     document.getElementById('sp500-val').textContent = m.sp500.toLocaleString();
     document.getElementById('nasdaq-val').textContent = m.nasdaq.toLocaleString();
     document.getElementById('sp500-big').textContent = m.sp500.toLocaleString();
-    document.getElementById('sp500-change').textContent = (m.sp500_change > 0 ? '+' : '') + m.sp500_change + '%';
-    document.getElementById('sp500-ytd').textContent = m.sp500_ytd + '%';
-    document.getElementById('nasdaq-ytd').textContent = m.nasdaq_ytd + '%';
+    const sc = document.getElementById('sp500-change');
+    sc.textContent = (m.sp500_change > 0 ? '+' : '') + m.sp500_change + '%';
+    sc.className = 'change ' + (m.sp500_change < 0 ? 'neg' : 'pos');
+    const sytd = document.getElementById('sp500-ytd');
+    sytd.textContent = m.sp500_ytd + '%';
+    sytd.className = 'rv ' + (m.sp500_ytd < 0 ? 'neg' : 'pos');
+    const nytd = document.getElementById('nasdaq-ytd');
+    nytd.textContent = m.nasdaq_ytd + '%';
+    nytd.className = 'rv ' + (m.nasdaq_ytd < 0 ? 'neg' : 'pos');
 
     // 공포탐욕
-    const fearColor = m.fear_greed <= 25 ? '#ef4444' : m.fear_greed <= 50 ? '#f59e0b' : '#22c55e';
+    const fColor = m.fear_greed <= 25 ? '#ef4444' : m.fear_greed <= 50 ? '#f59e0b' : '#22c55e';
     const fv = document.getElementById('fear-val');
     fv.textContent = m.fear_greed;
-    fv.style.color = fearColor;
+    fv.style.color = fColor;
     const fs = document.getElementById('fear-status');
     fs.textContent = m.fear_greed_status;
-    fs.style.color = fearColor;
+    fs.style.color = fColor;
     const fb = document.getElementById('fear-bar');
     fb.style.width = m.fear_greed + '%';
-    fb.style.background = fearColor;
-    fb.style.boxShadow = `0 0 8px ${fearColor}`;
+    fb.style.background = fColor;
+    fb.style.boxShadow = `0 0 8px ${fColor}`;
 
     // 체크리스트
     setChk(1, m.fear_greed <= 25, m.fear_greed);
@@ -366,21 +322,15 @@ get(ref(db, '/')).then((snapshot) => {
     setChk(6, m.nasdaq_ytd <= -15, m.nasdaq_ytd + '%');
 
     // 준비도
-    const rColor = s.buy_readiness >= 60 ? '#22c55e' : s.buy_readiness >= 30 ? '#f59e0b' : '#ef4444';
-    document.getElementById('readiness-pct').textContent = s.buy_readiness + '%';
-    document.getElementById('readiness-pct').style.color = rColor;
+    const rp = document.getElementById('readiness-pct');
+    rp.textContent = s.buy_readiness + '%';
+    rp.style.color = sColor;
     const rb = document.getElementById('readiness-bar');
     rb.style.width = s.buy_readiness + '%';
-    rb.style.background = rColor;
+    rb.style.background = sColor;
 
     // 전략
     document.getElementById('strategy-title').textContent = '⚠️ ' + s.strategy;
-    document.getElementById('gauge-checks').textContent = s.checks;
-    document.getElementById('gauge-strategy').textContent = s.strategy;
-    document.getElementById('gauge-strategy').style.color = rColor;
-
-    // 속도계 애니메이션 (로드 후 1초 뒤 바늘 이동)
-    setTimeout(() => updateGauge(s.buy_readiness), 500);
 });
 </script>
 </body>
