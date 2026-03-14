@@ -3,227 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미국 레버리지 ETF 매수 타이밍 대시보드</title>
+    <title>레버리지 ETF 매수 타이밍</title>
     <style>
         :root {
-            --color-bg-primary: #0f172a;
-            --color-bg-secondary: #1e293b;
-            --color-bg-elevated: #334155;
-            --color-text-primary: #f1f5f9;
-            --color-text-secondary: #cbd5e1;
-            --color-text-muted: #94a3b8;
-            --color-accent: #38bdf8;
-            --color-success: #22c55e;
-            --color-warning: #f59e0b;
-            --color-danger: #ef4444;
-            --color-border: rgba(148, 163, 184, 0.2);
+            --bg: #0f172a;
+            --bg2: #1e293b;
+            --bg3: #334155;
+            --text: #f1f5f9;
+            --text2: #cbd5e1;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --green: #22c55e;
+            --yellow: #f59e0b;
+            --red: #ef4444;
+            --border: rgba(148,163,184,0.2);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
-            background: var(--color-bg-primary);
-            color: var(--color-text-primary);
-            padding: 10px;
-            line-height: 1.4;
-            overflow-x: hidden;
-        }
-        .container { max-width: 1200px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--color-border); }
-        h1 { font-size: 1.5rem; margin-bottom: 5px; color: var(--color-accent); }
-        .subtitle { color: var(--color-text-secondary); font-size: 0.75rem; font-weight: 500; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
-        .card { background: var(--color-bg-secondary); border-radius: 8px; padding: 12px; border: 1px solid var(--color-border); box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .card-title { font-size: 0.9rem; font-weight: 700; color: var(--color-text-primary); }
-        .badge { padding: 2px 6px; border-radius: 10px; font-size: 0.65rem; font-weight: 600; }
-        .badge-extreme-fear { background: rgba(239,68,68,0.2); color: var(--color-danger); border: 1px solid var(--color-danger); }
-        .badge-fear { background: rgba(245,158,11,0.2); color: var(--color-warning); border: 1px solid var(--color-warning); }
-        .price-display { font-size: 1.8rem; font-weight: 700; margin: 5px 0; }
-        .price-change { font-size: 0.75rem; margin-bottom: 5px; font-weight: 500; }
-        .positive { color: var(--color-success); }
-        .negative { color: var(--color-danger); }
-        .metric-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--color-border); }
-        .metric-row:last-child { border-bottom: none; }
-        .metric-label { color: var(--color-text-secondary); font-size: 0.7rem; }
-        .metric-value { font-weight: 600; color: var(--color-text-primary); font-size: 0.7rem; }
-        .signal-box { background: var(--color-bg-elevated); border-radius: 6px; padding: 10px; margin-top: 8px; border-left: 3px solid; }
-        .signal-buy { border-left-color: var(--color-warning); background: rgba(245,158,11,0.1); }
-        .signal-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; }
-        .signal-desc { color: var(--color-text-secondary); font-size: 0.7rem; line-height: 1.4; }
-        .buy-checklist { background: var(--color-bg-secondary); border-radius: 8px; padding: 12px; margin-top: 10px; border: 1px solid var(--color-border); }
-        .checklist-item { display: flex; align-items: center; padding: 6px; margin: 4px 0; background: var(--color-bg-elevated); border-radius: 6px; }
-        .checkbox { width: 18px; height: 18px; border-radius: 4px; margin-right: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
-        .checkbox-checked { background: var(--color-success); color: white; }
-        .checkbox-unchecked { background: var(--color-bg-secondary); border: 2px solid var(--color-border); }
-        .progress-bar { width: 100%; height: 18px; background: var(--color-bg-elevated); border-radius: 9px; overflow: hidden; margin-top: 5px; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--color-danger), var(--color-warning), var(--color-success)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.65rem; }
-        .indicator-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
-        .indicator-card { background: var(--color-bg-elevated); padding: 8px; border-radius: 6px; text-align: center; }
-        .indicator-value { font-size: 1.5rem; font-weight: 700; margin: 3px 0; }
-        .indicator-label { color: var(--color-text-secondary); font-size: 0.65rem; font-weight: 500; }
-        @media (max-width: 768px) {
-            .grid { grid-template-columns: 1fr; }
-            h1 { font-size: 1.2rem; }
-            .price-display { font-size: 1.5rem; }
-        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); padding:8px; line-height:1.4; }
+        .container { max-width:480px; margin:0 auto; }
+
+        /* 헤더 */
+        header { text-align:center; padding:10px 0 8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+        h1 { font-size:1rem; color:var(--accent); margin-bottom:2px; }
+        .sub { color:var(--muted); font-size:0.65rem; }
+        .header-bottom { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:4px; }
+        .updated { color:var(--muted); font-size:0.6rem; }
+        .refresh-btn { background:var(--bg3); border:1px solid var(--border); color:var(--accent); padding:3px 8px; border-radius:12px; font-size:0.6rem; cursor:pointer; }
+        .refresh-btn:active { opacity:0.7; }
+
+        /* 속도계 */
+        .gauge-card { background:var(--bg2); border-radius:10px; padding:12px; margin-bottom:8px; border:1px solid var(--border); text-align:center; }
+        .gauge-title { font-size:0.75rem; color:var(--text2); margin-bottom:8px; font-weight:600; }
+        .gauge-wrap { position:relative; width:180px; height:95px; margin:0 auto; }
+        .gauge-svg { width:100%; height:100%; }
+        .gauge-value { position:absolute; bottom:0; left:50%; transform:translateX(-50%); font-size:1.6rem; font-weight:700; }
+        .gauge-label { font-size:0.75rem; font-weight:600; margin-top:4px; }
+        .gauge-sub { color:var(--muted); font-size:0.6rem; margin-top:2px; }
+
+        /* 그리드 */
+        .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:6px; }
+        .card { background:var(--bg2); border-radius:8px; padding:10px; border:1px solid var(--border); }
+        .card-title { font-size:0.7rem; font-weight:700; color:var(--text2); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; }
+        .badge { padding:1px 5px; border-radius:8px; font-size:0.55rem; font-weight:600; }
+        .badge-red { background:rgba(239,68,68,0.2); color:var(--red); border:1px solid var(--red); }
+        .badge-yellow { background:rgba(245,158,11,0.2); color:var(--yellow); border:1px solid var(--yellow); }
+        .badge-green { background:rgba(34,197,94,0.2); color:var(--green); border:1px solid var(--green); }
+        .price { font-size:1.4rem; font-weight:700; margin:2px 0; }
+        .change { font-size:0.65rem; margin-bottom:2px; }
+        .pos { color:var(--green); }
+        .neg { color:var(--red); }
+        .row { display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid var(--border); }
+        .row:last-child { border:none; }
+        .rl { color:var(--text2); font-size:0.6rem; }
+        .rv { font-weight:600; font-size:0.6rem; }
+
+        /* 체크리스트 */
+        .checklist { background:var(--bg2); border-radius:8px; padding:10px; margin-bottom:6px; border:1px solid var(--border); }
+        .cl-title { font-size:0.75rem; font-weight:700; color:var(--accent); margin-bottom:6px; }
+        .cl-item { display:flex; align-items:center; padding:4px 6px; margin:3px 0; background:var(--bg3); border-radius:5px; }
+        .chk { width:16px; height:16px; border-radius:3px; margin-right:6px; display:flex; align-items:center; justify-content:center; font-size:0.65rem; flex-shrink:0; }
+        .chk-y { background:var(--green); color:white; }
+        .chk-n { background:var(--bg2); border:1px solid var(--border); }
+        .cl-text { font-size:0.62rem; flex:1; }
+        .cl-val { font-size:0.62rem; font-weight:600; margin-left:4px; }
+
+        /* 전략 */
+        .strategy { background:var(--bg2); border-radius:8px; padding:10px; margin-bottom:6px; border:1px solid var(--border); }
+        .st-title { font-size:0.7rem; font-weight:700; color:var(--yellow); margin-bottom:6px; }
+        .st-text { font-size:0.62rem; color:var(--text2); line-height:1.5; }
+
+        /* 푸터 */
+        footer { text-align:center; padding:8px 0; border-top:1px solid var(--border); color:var(--muted); font-size:0.6rem; }
+        footer a { color:var(--accent); text-decoration:none; }
     </style>
 </head>
 <body>
 <div class="container">
     <header>
-        <h1>🎯 미국 레버리지 ETF 매수 타이밍 대시보드</h1>
-        <p class="subtitle">FNGU·SOXL | 1년 주기 하락 매수 전략 | 실시간 시장 신호 모니터링</p>
-        <p class="subtitle" style="margin-top:8px;color:var(--color-text-muted);">마지막 업데이트: <span id="last-updated">로딩 중...</span></p>
+        <h1>🎯 레버리지 ETF 매수 타이밍</h1>
+        <p class="sub">FNGU·SOXL | 1년 주기 하락 매수 전략</p>
+        <div class="header-bottom">
+            <span class="updated">업데이트: <span id="last-updated">로딩 중...</span></span>
+            <button class="refresh-btn" onclick="location.reload()">🔄 새로고침</button>
+        </div>
     </header>
 
-    <div class="grid">
+    <!-- 속도계 -->
+    <div class="gauge-card">
+        <div class="gauge-title">📊 매수 신호 강도</div>
+        <div class="gauge-wrap">
+            <svg class="gauge-svg" viewBox="0 0 200 110">
+                <!-- 배경 호 -->
+                <path d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="#334155" stroke-width="18" stroke-linecap="round"/>
+                <!-- 색상 구간 -->
+                <path d="M20,100 A80,80 0 0,1 60,31" fill="none" stroke="#ef4444" stroke-width="18" stroke-linecap="round" opacity="0.4"/>
+                <path d="M60,31 A80,80 0 0,1 120,20" fill="none" stroke="#f59e0b" stroke-width="18" stroke-linecap="round" opacity="0.4"/>
+                <path d="M120,20 A80,80 0 0,1 180,100" fill="none" stroke="#22c55e" stroke-width="18" stroke-linecap="round" opacity="0.4"/>
+                <!-- 진행 호 -->
+                <path id="gauge-arc" d="M20,100 A80,80 0 0,1 20,100" fill="none" stroke="#38bdf8" stroke-width="18" stroke-linecap="round"/>
+                <!-- 바늘 -->
+                <line id="gauge-needle" x1="100" y1="100" x2="100" y2="28" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="100" cy="100" r="5" fill="white"/>
+            </svg>
+            <div class="gauge-value" id="gauge-pct">-</div>
+        </div>
+        <div class="gauge-label" id="gauge-label">로딩 중...</div>
+        <div class="gauge-sub" id="gauge-sub">-</div>
+    </div>
+
+    <!-- FNGU / SOXL -->
+    <div class="grid2">
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">FNGU (FANG+ 3X)</h3>
-                <span class="badge badge-extreme-fear" id="fngu-badge">로딩 중...</span>
-            </div>
-            <div class="price-display" id="fngu-price">-</div>
-            <div class="price-change negative" id="fngu-change">-</div>
-            <div class="price-change negative" id="fngu-ytd">-</div>
-            <div class="metric-row"><span class="metric-label">52주 최고</span><span class="metric-value">$34.14</span></div>
-            <div class="metric-row"><span class="metric-label">52주 최저</span><span class="metric-value">$7.95</span></div>
-            <div class="metric-row"><span class="metric-label">최저가 대비</span><span class="metric-value positive">+148%</span></div>
+            <div class="card-title">FNGU (3X) <span class="badge badge-red" id="fngu-badge">-</span></div>
+            <div class="price" id="fngu-price">-</div>
+            <div class="change neg" id="fngu-change">-</div>
+            <div class="row"><span class="rl">연초대비</span><span class="rv neg" id="fngu-ytd">-</span></div>
+            <div class="row"><span class="rl">52주 최고</span><span class="rv">$34.14</span></div>
+            <div class="row"><span class="rl">52주 최저</span><span class="rv">$7.95</span></div>
         </div>
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">SOXL (반도체 3X)</h3>
-                <span class="badge badge-fear">매수 관심 구간</span>
-            </div>
-            <div class="price-display">$46.96</div>
-            <div class="price-change positive">+$0.26 (+0.26%) 오늘</div>
-            <div class="price-change negative">연초 대비 -7.97%</div>
-            <div class="metric-row"><span class="metric-label">1개월 수익률</span><span class="metric-value positive">+105.63%</span></div>
-            <div class="metric-row"><span class="metric-label">1년 수익률</span><span class="metric-value negative">-43.53%</span></div>
-            <div class="metric-row"><span class="metric-label">변동성</span><span class="metric-value">극도로 높음 (3배)</span></div>
+            <div class="card-title">SOXL (3X) <span class="badge badge-yellow">관심</span></div>
+            <div class="price" id="soxl-price">-</div>
+            <div class="change" id="soxl-ytd">-</div>
+            <div class="row"><span class="rl">VIX</span><span class="rv" id="vix-val">-</span></div>
+            <div class="row"><span class="rl">S&amp;P500</span><span class="rv" id="sp500-val">-</span></div>
+            <div class="row"><span class="rl">NASDAQ</span><span class="rv" id="nasdaq-val">-</span></div>
         </div>
     </div>
 
-    <div class="grid">
+    <!-- 공포탐욕 -->
+    <div class="grid2">
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">공포·탐욕 지수</h3>
-                <span class="badge badge-extreme-fear" id="fear-badge">로딩 중...</span>
-            </div>
-            <div class="indicator-grid">
-                <div class="indicator-card">
-                    <div class="indicator-label">공포·탐욕</div>
-                    <div class="indicator-value" style="color:var(--color-danger);" id="fear-greed-value">-</div>
-                    <div class="indicator-label" id="fear-greed-status">-</div>
-                </div>
-                <div class="indicator-card">
-                    <div class="indicator-label">VIX 지수</div>
-                    <div class="indicator-value" style="color:var(--color-warning);" id="vix-value">-</div>
-                    <div class="indicator-label" id="vix-status">-</div>
-                </div>
-            </div>
-            <div class="progress-bar"><div class="progress-fill" id="fear-progress" style="width:20%;">-</div></div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">주요 지수 현황</h3>
-                <span class="badge badge-fear">조정 진행 중</span>
-            </div>
-            <div class="metric-row"><span class="metric-label">S&amp;P 500</span><span class="metric-value" id="sp500-value">-</span></div>
-            <div class="metric-row"><span class="metric-label">전일 대비</span><span class="metric-value negative" id="sp500-change">-</span></div>
-            <div class="metric-row"><span class="metric-label">최고점 대비</span><span class="metric-value negative">-4.4%</span></div>
-            <div class="metric-row"><span class="metric-label">NASDAQ</span><span class="metric-value" id="nasdaq-value">-</span></div>
-            <div class="metric-row"><span class="metric-label">최고점 대비</span><span class="metric-value negative">-5.3%</span></div>
-            <div class="metric-row"><span class="metric-label">조정 단계</span><span class="metric-value">경미한 조정 (5-10%)</span></div>
-        </div>
-    </div>
-
-    <div class="buy-checklist">
-        <h2 style="margin-bottom:8px;color:var(--color-accent);font-size:1rem;">🎯 매수 체크리스트</h2>
-        <div class="checklist-item">
-            <div class="checkbox" id="chk-fear">✓</div>
-            <div style="font-size:0.7rem;"><strong>공포지수 25↓</strong> 현재: <span id="chk-fear-val">-</span></div>
-        </div>
-        <div class="checklist-item">
-            <div class="checkbox" id="chk-vix"></div>
-            <div style="font-size:0.7rem;"><strong>VIX 30↑</strong> 현재: <span id="chk-vix-val">-</span></div>
-        </div>
-        <div class="checklist-item">
-            <div class="checkbox checkbox-unchecked"></div>
-            <div style="font-size:0.7rem;"><strong>S&amp;P -10%↓</strong> 현재: -4.4% ❌</div>
-        </div>
-        <div class="checklist-item">
-            <div class="checkbox" id="chk-fngu"></div>
-            <div style="font-size:0.7rem;"><strong>FNGU -20%↓</strong> 현재: <span id="chk-fngu-val">-</span></div>
-        </div>
-        <div class="checklist-item">
-            <div class="checkbox checkbox-unchecked"></div>
-            <div style="font-size:0.7rem;"><strong>SOXL -20%↓</strong> 현재: -7.97% ❌</div>
-        </div>
-        <div class="checklist-item">
-            <div class="checkbox checkbox-unchecked"></div>
-            <div style="font-size:0.7rem;"><strong>NASDAQ -15%↓</strong> 현재: -5.3% ❌</div>
-        </div>
-        <div style="margin-top:10px;padding:10px;background:var(--color-bg-elevated);border-radius:6px;">
-            <h3 style="color:var(--color-accent);margin-bottom:6px;font-size:0.8rem;">📊 매수 준비도</h3>
-            <div class="progress-bar">
-                <div class="progress-fill" id="buy-progress" style="width:33%;background:linear-gradient(90deg,var(--color-warning),var(--color-success));">-</div>
-            </div>
-            <p style="margin-top:6px;color:var(--color-text-secondary);font-size:0.7rem;">
-                <strong style="color:var(--color-warning);" id="strategy-text">로딩 중...</strong>
-            </p>
-        </div>
-    </div>
-
-    <div class="grid" style="margin-top:10px;">
-        <div class="card">
-            <h3 class="card-title" style="margin-bottom:8px;">💰 투자 전략</h3>
-            <div class="signal-box signal-buy">
-                <div class="signal-title" style="color:var(--color-warning);" id="signal-title">로딩 중...</div>
-                <div class="signal-desc">
-                    <strong>FNGU:</strong> 30% 선매수 후 VIX 35+ 또는 $15↓ 시 추가<br>
-                    <strong>SOXL:</strong> $40↓ 시 1차, $30대 시 본격 검토
-                </div>
-            </div>
-            <div style="margin-top:8px;padding:8px;background:var(--color-bg-elevated);border-radius:6px;">
-                <h4 style="color:var(--color-accent);margin-bottom:4px;font-size:0.75rem;">🎯 분할 매수</h4>
-                <div style="color:var(--color-text-secondary);font-size:0.7rem;line-height:1.3;">
-                    1단계(현재): 30% | 2단계(VIX35+): 30% | 3단계(-20%): 40%
-                </div>
+            <div class="card-title">😱 공포·탐욕</div>
+            <div class="price" id="fear-val" style="color:var(--red)">-</div>
+            <div class="change" id="fear-status">-</div>
+            <div style="width:100%;height:8px;background:var(--bg3);border-radius:4px;margin-top:6px;overflow:hidden;">
+                <div id="fear-bar" style="height:100%;border-radius:4px;background:var(--red);width:0%;transition:width 0.5s;"></div>
             </div>
         </div>
         <div class="card">
-            <h3 class="card-title" style="margin-bottom:8px;">🚨 강력 매수 신호 (대기 중)</h3>
-            <div style="background:var(--color-bg-elevated);padding:8px;border-radius:6px;">
-                <div style="color:var(--color-text-secondary);font-size:0.7rem;line-height:1.6;">
-                    ✓ VIX 40↑ (코로나급)<br>
-                    ✓ 공포지수 15↓<br>
-                    ✓ S&amp;P -20%↓<br>
-                    ✓ NASDAQ -25%↓<br>
-                    ✓ FNGU $15↓ / SOXL $30↓
-                </div>
-            </div>
+            <div class="card-title">📈 S&amp;P500 현황</div>
+            <div class="price" id="sp500-big">-</div>
+            <div class="change neg" id="sp500-change">-</div>
+            <div class="row"><span class="rl">연초대비</span><span class="rv neg" id="sp500-ytd">-</span></div>
+            <div class="row"><span class="rl">NASDAQ YTD</span><span class="rv neg" id="nasdaq-ytd">-</span></div>
         </div>
     </div>
 
-    <div style="margin-top:10px;padding:10px;background:var(--color-bg-secondary);border-radius:8px;border:1px solid var(--color-border);">
-        <h4 style="color:var(--color-danger);margin-bottom:6px;font-size:0.8rem;">⚠️ 투자 유의사항</h4>
-        <ul style="color:var(--color-text-secondary);line-height:1.4;padding-left:15px;font-size:0.7rem;margin:0;">
-            <li>3배 레버리지 ETF - 장기보유 시 복리감가, 반등 후 매도 필수</li>
-            <li>하루 ±10-15% 변동 가능, 분할 매수 원칙 준수</li>
-            <li>참고 정보이며, 최종 투자 결정은 본인 판단과 책임</li>
-        </ul>
+    <!-- 체크리스트 -->
+    <div class="checklist">
+        <div class="cl-title">🎯 매수 체크리스트</div>
+        <div class="cl-item">
+            <div class="chk" id="chk1"></div>
+            <span class="cl-text">공포지수 25↓</span>
+            <span class="cl-val" id="chk1-val">-</span>
+        </div>
+        <div class="cl-item">
+            <div class="chk" id="chk2"></div>
+            <span class="cl-text">VIX 30↑</span>
+            <span class="cl-val" id="chk2-val">-</span>
+        </div>
+        <div class="cl-item">
+            <div class="chk" id="chk3"></div>
+            <span class="cl-text">S&amp;P -10%↓</span>
+            <span class="cl-val" id="chk3-val">-</span>
+        </div>
+        <div class="cl-item">
+            <div class="chk" id="chk4"></div>
+            <span class="cl-text">FNGU -20%↓</span>
+            <span class="cl-val" id="chk4-val">-</span>
+        </div>
+        <div class="cl-item">
+            <div class="chk" id="chk5"></div>
+            <span class="cl-text">SOXL -20%↓</span>
+            <span class="cl-val" id="chk5-val">-</span>
+        </div>
+        <div class="cl-item">
+            <div class="chk" id="chk6"></div>
+            <span class="cl-text">NASDAQ -15%↓</span>
+            <span class="cl-val" id="chk6-val">-</span>
+        </div>
     </div>
 
-    <footer style="text-align:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--color-border);color:var(--color-text-muted);font-size:0.65rem;">
-        <p>투자 손실 책임은 투자자 본인 | <span id="footer-date">-</span> 기준</p>
+    <!-- 전략 -->
+    <div class="strategy">
+        <div class="st-title" id="strategy-title">⚠️ 로딩 중...</div>
+        <div class="st-text">
+            <strong>FNGU:</strong> 30% 선매수 → VIX 35+ 또는 $15↓ 시 추가<br>
+            <strong>SOXL:</strong> $40↓ 시 1차, $30대 시 본격 검토<br>
+            <strong>분할매수:</strong> 1단계 30% | 2단계 30% | 3단계 40%
+        </div>
+    </div>
+
+    <footer>
+        <p>⚠️ 3배 레버리지 ETF — 장기보유 시 복리감가, 반등 후 매도 필수</p>
+        <p style="margin-top:3px;"><span id="footer-date">-</span> 기준 | 투자 손실 책임은 투자자 본인</p>
+        <p style="margin-top:4px;">개발: <a href="mailto:capboy2000@naver.com">capboy2000@naver.com</a></p>
     </footer>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-  const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyAdBYufBEjTgz5gw_p5tyse4BkJhAsEgNo",
     authDomain: "fngu-buy-signal.firebaseapp.com",
     databaseURL: "https://fngu-buy-signal-default-rtdb.firebaseio.com",
@@ -231,68 +214,96 @@
     storageBucket: "fngu-buy-signal.firebasestorage.app",
     messagingSenderId: "1062337214387",
     appId: "1:1062337214387:web:b7a02ce6db68bf9252bdc6"
-  };
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-  // DB에서 데이터 읽어와서 화면 업데이트
-  get(ref(db, '/')).then((snapshot) => {
+function setChk(id, ok, val) {
+    const el = document.getElementById(id);
+    el.className = 'chk ' + (ok ? 'chk-y' : 'chk-n');
+    el.textContent = ok ? '✓' : '';
+    document.getElementById(id + '-val').textContent = val + (ok ? ' ✅' : ' ❌');
+}
+
+function updateGauge(pct) {
+    const angle = -90 + (pct / 100) * 180;
+    const rad = (angle * Math.PI) / 180;
+    const x2 = 100 + 72 * Math.cos(rad);
+    const y2 = 100 + 72 * Math.sin(rad);
+    document.getElementById('gauge-needle').setAttribute('x2', x2);
+    document.getElementById('gauge-needle').setAttribute('y2', y2);
+
+    // 호 그리기
+    const endRad = ((-90 + (pct / 100) * 180) * Math.PI) / 180;
+    const ex = 100 + 80 * Math.cos(endRad);
+    const ey = 100 + 80 * Math.sin(endRad);
+    const large = pct > 50 ? 1 : 0;
+    document.getElementById('gauge-arc').setAttribute('d',
+        `M20,100 A80,80 0 ${large},1 ${ex.toFixed(1)},${ey.toFixed(1)}`
+    );
+
+    // 색상
+    const color = pct >= 60 ? '#22c55e' : pct >= 30 ? '#f59e0b' : '#ef4444';
+    document.getElementById('gauge-arc').setAttribute('stroke', color);
+    document.getElementById('gauge-pct').textContent = pct + '%';
+    document.getElementById('gauge-pct').style.color = color;
+}
+
+get(ref(db, '/')).then((snapshot) => {
     if (!snapshot.exists()) return;
-    const data = snapshot.val();
-    const m = data.market;
-    const s = data.signal;
+    const d = snapshot.val();
+    const m = d.market;
+    const s = d.signal;
 
-    // 날짜
-    document.getElementById('last-updated').textContent = m.last_updated + ' 기준';
+    // 헤더
+    document.getElementById('last-updated').textContent = m.last_updated;
     document.getElementById('footer-date').textContent = m.last_updated;
 
     // FNGU
     document.getElementById('fngu-price').textContent = '$' + m.fngu_price;
-    document.getElementById('fngu-change').textContent = m.fngu_change > 0
-      ? '+' + m.fngu_change + '% 오늘' : m.fngu_change + '% 오늘';
-    document.getElementById('fngu-ytd').textContent = '연초 대비 ' + m.fngu_ytd + '%';
+    document.getElementById('fngu-change').textContent = (m.fngu_change > 0 ? '+' : '') + m.fngu_change + '% 오늘';
+    document.getElementById('fngu-ytd').textContent = m.fngu_ytd + '%';
     document.getElementById('fngu-badge').textContent = s.fngu_status;
 
-    // 공포·탐욕
-    document.getElementById('fear-greed-value').textContent = m.fear_greed;
-    document.getElementById('fear-greed-status').textContent = m.fear_greed_status;
-    document.getElementById('fear-badge').textContent = m.fear_greed_status;
-    document.getElementById('fear-progress').style.width = m.fear_greed + '%';
-    document.getElementById('fear-progress').textContent = m.fear_greed + '/100';
+    // SOXL
+    document.getElementById('soxl-price').textContent = '$' + m.soxl_price;
+    document.getElementById('soxl-ytd').className = 'change ' + (m.soxl_ytd >= 0 ? 'pos' : 'neg');
+    document.getElementById('soxl-ytd').textContent = '연초대비 ' + m.soxl_ytd + '%';
 
-    // VIX
-    document.getElementById('vix-value').textContent = m.vix;
-    document.getElementById('vix-status').textContent = m.vix >= 30 ? '공포 (30↑)' : '고공포 (30 근접)';
+    // 지수
+    document.getElementById('vix-val').textContent = m.vix;
+    document.getElementById('sp500-val').textContent = m.sp500.toLocaleString();
+    document.getElementById('nasdaq-val').textContent = m.nasdaq.toLocaleString();
+    document.getElementById('sp500-big').textContent = m.sp500.toLocaleString();
+    document.getElementById('sp500-change').textContent = (m.sp500_change > 0 ? '+' : '') + m.sp500_change + '%';
+    document.getElementById('sp500-ytd').textContent = m.sp500_ytd + '%';
+    document.getElementById('nasdaq-ytd').textContent = m.nasdaq_ytd + '%';
 
-    // S&P500, NASDAQ
-    document.getElementById('sp500-value').textContent = m.sp500.toLocaleString();
-    document.getElementById('sp500-change').textContent = m.sp500_change + '%';
-    document.getElementById('nasdaq-value').textContent = m.nasdaq.toLocaleString();
+    // 공포탐욕
+    document.getElementById('fear-val').textContent = m.fear_greed;
+    document.getElementById('fear-status').textContent = m.fear_greed_status;
+    document.getElementById('fear-bar').style.width = m.fear_greed + '%';
+    const fc = m.fear_greed <= 25 ? 'var(--red)' : m.fear_greed <= 50 ? 'var(--yellow)' : 'var(--green)';
+    document.getElementById('fear-bar').style.background = fc;
+    document.getElementById('fear-val').style.color = fc;
 
     // 체크리스트
-    const fearOk = m.fear_greed <= 25;
-    document.getElementById('chk-fear').className = 'checkbox ' + (fearOk ? 'checkbox-checked' : 'checkbox-unchecked');
-    document.getElementById('chk-fear').textContent = fearOk ? '✓' : '';
-    document.getElementById('chk-fear-val').textContent = m.fear_greed + (fearOk ? ' ✅' : ' ❌');
+    setChk('chk1', m.fear_greed <= 25, m.fear_greed);
+    setChk('chk2', m.vix >= 30, m.vix);
+    setChk('chk3', m.sp500_ytd <= -10, m.sp500_ytd + '%');
+    setChk('chk4', m.fngu_ytd <= -20, m.fngu_ytd + '%');
+    setChk('chk5', m.soxl_ytd <= -20, m.soxl_ytd + '%');
+    setChk('chk6', m.nasdaq_ytd <= -15, m.nasdaq_ytd + '%');
 
-    const vixOk = m.vix >= 30;
-    document.getElementById('chk-vix').className = 'checkbox ' + (vixOk ? 'checkbox-checked' : 'checkbox-unchecked');
-    document.getElementById('chk-vix').textContent = vixOk ? '✓' : '';
-    document.getElementById('chk-vix-val').textContent = m.vix + (vixOk ? ' ✅' : ' ⚠️');
+    // 속도계
+    updateGauge(s.buy_readiness);
+    document.getElementById('gauge-label').textContent = s.strategy;
+    document.getElementById('gauge-sub').textContent = s.checks + '/6 조건 충족';
 
-    const fnguOk = m.fngu_ytd <= -20;
-    document.getElementById('chk-fngu').className = 'checkbox ' + (fnguOk ? 'checkbox-checked' : 'checkbox-unchecked');
-    document.getElementById('chk-fngu').textContent = fnguOk ? '✓' : '';
-    document.getElementById('chk-fngu-val').textContent = m.fngu_ytd + '% ' + (fnguOk ? '✅' : '❌');
-
-    // 매수 준비도
-    document.getElementById('buy-progress').style.width = s.buy_readiness + '%';
-    document.getElementById('buy-progress').textContent = s.buy_readiness + '%';
-    document.getElementById('strategy-text').textContent = s.strategy;
-    document.getElementById('signal-title').textContent = '⚠️ ' + s.strategy;
-  });
+    // 전략
+    document.getElementById('strategy-title').textContent = '⚠️ ' + s.strategy;
+});
 </script>
 </body>
 </html>
-
