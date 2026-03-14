@@ -68,50 +68,6 @@
         }
     </style>
 </head>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAdBYufBEjTgz5gw_p5tyse4BkJhAsEgNo",
-    authDomain: "fngu-buy-signal.firebaseapp.com",
-    databaseURL: "https://fngu-buy-signal-default-rtdb.firebaseio.com",
-    projectId: "fngu-buy-signal",
-    storageBucket: "fngu-buy-signal.firebasestorage.app",
-    messagingSenderId: "1062337214387",
-    appId: "1:1062337214387:web:b7a02ce6db68bf9252bdc6"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  // DB가 비어있으면 초기 데이터 자동 입력
-  const marketRef = ref(db, 'market');
-  get(marketRef).then((snapshot) => {
-    if (!snapshot.exists()) {
-      set(ref(db, 'market'), {
-        fngu_price: 19.73,
-        fngu_change: -1.65,
-        fngu_ytd: -23.91,
-        fear_greed: 20,
-        fear_greed_status: "극도의 공포",
-        vix: 29.49,
-        sp500: 6672.62,
-        sp500_change: -1.52,
-        nasdaq: 22697,
-        last_updated: "2026-03-14"
-      });
-      set(ref(db, 'signal'), {
-        fngu_status: "강력 매수 구간",
-        buy_readiness: 33,
-        strategy: "부분 매수 + 관망"
-      });
-      console.log("✅ 초기 데이터 DB에 저장 완료!");
-    } else {
-      console.log("✅ DB 데이터 존재 확인!");
-    }
-  });
-</script>
 <body>
 <div class="container">
     <header>
@@ -262,5 +218,50 @@
         <p>2026.03.13 기준 | 투자 손실 책임은 투자자 본인</p>
     </footer>
 </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAdBYufBEjTgz5gw_p5tyse4BkJhAsEgNo",
+    authDomain: "fngu-buy-signal.firebaseapp.com",
+    databaseURL: "https://fngu-buy-signal-default-rtdb.firebaseio.com",
+    projectId: "fngu-buy-signal",
+    storageBucket: "fngu-buy-signal.firebasestorage.app",
+    messagingSenderId: "1062337214387",
+    appId: "1:1062337214387:web:b7a02ce6db68bf9252bdc6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const marketRef = ref(db, 'market');
+  get(marketRef).then((snapshot) => {
+    if (!snapshot.exists()) {
+      set(ref(db, 'market'), {
+        fngu_price: 19.73,
+        fngu_change: -1.65,
+        fngu_ytd: -23.91,
+        fear_greed: 20,
+        fear_greed_status: "극도의 공포",
+        vix: 29.49,
+        sp500: 6672.62,
+        sp500_change: -1.52,
+        nasdaq: 22697,
+        last_updated: "2026-03-14"
+      });
+      set(ref(db, 'signal'), {
+        fngu_status: "강력 매수 구간",
+        buy_readiness: 33,
+        strategy: "부분 매수 + 관망"
+      });
+      console.log("✅ 초기 데이터 DB에 저장 완료!");
+    } else {
+      console.log("✅ DB 데이터 존재 확인!");
+    }
+  });
+</script>
 </body>
 </html>
+
