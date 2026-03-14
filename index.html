@@ -13,31 +13,23 @@
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:-apple-system,'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); padding:10px; }
-        .wrap { max-width:440px; margin:0 auto; }
-        .card { background:var(--bg2); border-radius:10px; padding:12px; border:1px solid var(--border); margin-bottom:6px; }
-        .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:6px; }
-        .card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
-        .card-name { font-size:0.82rem; font-weight:800; }
-        .card-title { font-size:0.72rem; font-weight:700; color:var(--muted); margin-bottom:6px; }
-        .badge { padding:2px 6px; border-radius:8px; font-size:0.58rem; font-weight:700; }
-        .badge-red { background:#ef444422; color:var(--red); border:1px solid #ef444444; }
-        .badge-yellow { background:#f59e0b22; color:var(--yellow); border:1px solid #f59e0b44; }
-        .price { font-size:1.55rem; font-weight:800; line-height:1.1; }
-        .price-lg { font-size:2rem; font-weight:900; line-height:1; }
-        .change { font-size:0.67rem; margin-bottom:4px; }
+        .wrap { max-width:480px; margin:0 auto; }
+        .card { background:var(--bg2); border-radius:10px; padding:10px; border:1px solid var(--border); transition:border 0.3s,box-shadow 0.3s; }
+        .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:8px; }
+        .badge { padding:1px 5px; border-radius:6px; font-size:0.55rem; font-weight:700; }
         .pos { color:var(--green); } .neg { color:var(--red); }
-        .row { display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid var(--border); }
-        .row:last-child { border:none; }
-        .rl { color:var(--muted); font-size:0.68rem; }
-        .rv { font-weight:700; font-size:0.68rem; }
-        .bar { width:100%; height:6px; background:var(--bg); border-radius:3px; overflow:hidden; margin-top:4px; }
-        .bar-fill { height:100%; border-radius:3px; transition:width 1.2s ease 0.5s; }
+        .bar { width:100%; height:4px; background:var(--bg); border-radius:2px; overflow:hidden; margin-top:4px; }
+        .bar-fill { height:100%; border-radius:2px; transition:width 1.2s ease 0.5s; }
         .cl-item { display:flex; align-items:center; padding:5px 8px; margin:3px 0; background:var(--bg); border-radius:6px; }
         .chk { width:18px; height:18px; border-radius:4px; margin-right:8px; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; flex-shrink:0; color:white; }
         .chk-y { background:var(--green); }
         .chk-n { background:var(--bg2); border:1px solid var(--bg3); }
         .cl-text { font-size:0.72rem; flex:1; color:var(--text2); }
         .cl-val { font-size:0.72rem; font-weight:700; margin-left:4px; }
+        .row { display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid var(--border); }
+        .row:last-child { border:none; }
+        .rl { color:var(--muted); font-size:0.6rem; }
+        .rv { font-weight:700; font-size:0.6rem; }
         footer { text-align:center; padding:8px 0; border-top:1px solid var(--border); color:#475569; font-size:0.62rem; margin-top:6px; }
         footer a { color:var(--accent); text-decoration:none; }
 
@@ -48,10 +40,7 @@
         @keyframes fadeUp { from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);} }
         @keyframes slideIn { from{opacity:0;transform:translateX(-12px);}to{opacity:1;transform:translateX(0);} }
         @keyframes popIn { from{transform:scale(0);}to{transform:scale(1);} }
-        @keyframes fearPulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.05);} }
-        @keyframes countUp { from{opacity:0;}to{opacity:1;} }
-
-        .fade-up { animation: fadeUp 0.5s ease both; }
+        @keyframes fearPulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.06);} }
         .led-seg { flex:1; height:20px; border-radius:3px; background:var(--bg2); }
     </style>
 </head>
@@ -60,11 +49,9 @@
 
     <!-- 헤더 -->
     <div id="header" style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px;opacity:0;transform:translateY(-20px);transition:all 0.6s ease;">
-
-        <!-- 심볼 + 타이틀 -->
         <div style="display:flex;justify-content:space-between;align-items:center;">
 
-            <!-- 왼쪽 캔들차트 심볼 -->
+            <!-- 왼쪽 캔들 심볼 -->
             <div style="animation:floatL 3s ease-in-out infinite;">
                 <svg viewBox="0 0 52 52" width="52" height="52">
                     <defs>
@@ -72,10 +59,7 @@
                             <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.9"/>
                             <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.7"/>
                         </linearGradient>
-                        <filter id="glowL">
-                            <feGaussianBlur stdDeviation="1.5" result="blur"/>
-                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                        </filter>
+                        <filter id="glowL"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
                     </defs>
                     <g filter="url(#glowL)">
                         <rect x="2" y="2" width="48" height="48" rx="10" fill="#0f172a" stroke="url(#gradL)" stroke-width="1.5"/>
@@ -96,7 +80,7 @@
                 </svg>
             </div>
 
-            <!-- 중앙 타이틀 -->
+            <!-- 타이틀 -->
             <div style="text-align:center;flex:1;">
                 <div style="font-size:1.05rem;color:var(--accent);font-weight:800;animation:glow 3s ease infinite;">🎯 레버리지 ETF</div>
                 <div style="font-size:0.9rem;color:var(--accent);font-weight:800;">매수 타이밍</div>
@@ -111,10 +95,7 @@
                             <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.9"/>
                             <stop offset="100%" stop-color="#ef4444" stop-opacity="0.7"/>
                         </linearGradient>
-                        <filter id="glowR">
-                            <feGaussianBlur stdDeviation="1.5" result="blur"/>
-                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                        </filter>
+                        <filter id="glowR"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
                     </defs>
                     <g filter="url(#glowR)">
                         <rect x="2" y="2" width="48" height="48" rx="10" fill="#0f172a" stroke="url(#gradR)" stroke-width="1.5"/>
@@ -128,7 +109,6 @@
                         <line x1="34" y1="40" x2="36" y2="48" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
                         <circle cx="23" cy="19" r="1.5" fill="white"/>
                         <circle cx="29" cy="19" r="1.5" fill="white"/>
-                        <ellipse cx="26" cy="23" rx="3" ry="2" fill="#0f172a" opacity="0.4"/>
                     </g>
                 </svg>
             </div>
@@ -140,14 +120,14 @@
             <button onclick="location.reload()" style="background:var(--bg2);border:1px solid var(--bg3);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:0.63rem;cursor:pointer;">🔄 새로고침</button>
         </div>
 
-        <!-- 티커 바 -->
+        <!-- 티커 -->
         <div style="margin-top:8px;overflow:hidden;background:var(--bg2);border-radius:6px;padding:4px 0;border:1px solid var(--border);">
             <div id="ticker" style="display:flex;animation:ticker 14s linear infinite;white-space:nowrap;"></div>
         </div>
     </div>
 
     <!-- 시그널 미터 -->
-    <div id="signal-meter" style="border-radius:12px;padding:14px 16px;margin-bottom:6px;opacity:0;animation:fadeUp 0.5s ease 0.2s both;">
+    <div id="signal-meter" style="border-radius:12px;padding:14px 16px;margin-bottom:8px;opacity:0;animation:fadeUp 0.5s ease 0.2s both;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <span id="signal-title" style="font-size:0.78rem;font-weight:800;">📡 매수 신호</span>
             <span style="font-size:0.7rem;color:var(--muted);"><span id="signal-checks">-</span>/6 조건</span>
@@ -164,52 +144,86 @@
         <div id="signal-strategy" style="margin-top:10px;padding:6px 10px;background:var(--bg);border-radius:6px;font-size:0.65rem;color:var(--muted);text-align:center;">-</div>
     </div>
 
-    <!-- FNGU / SOXL -->
-    <div class="grid2">
-        <div class="card" id="card-fngu" style="opacity:0;animation:fadeUp 0.5s ease 0.3s both;transition:border 0.3s,box-shadow 0.3s;">
-            <div class="card-head">
-                <span class="card-name">FNGU</span>
-                <span class="badge badge-red" id="fngu-badge">-</span>
-            </div>
-            <div class="price" id="fngu-price">-</div>
-            <div class="change" id="fngu-change">-</div>
-            <div class="row"><span class="rl">연초대비</span><span class="rv" id="fngu-ytd">-</span></div>
-            <div class="row"><span class="rl">52주 최고</span><span class="rv">$34.14</span></div>
-            <div class="row"><span class="rl">52주 최저</span><span class="rv">$7.95</span></div>
-        </div>
-        <div class="card" id="card-soxl" style="opacity:0;animation:fadeUp 0.5s ease 0.4s both;transition:border 0.3s,box-shadow 0.3s;">
-            <div class="card-head">
-                <span class="card-name">SOXL</span>
-                <span class="badge badge-yellow">관심</span>
-            </div>
-            <div class="price" id="soxl-price">-</div>
-            <div class="change" id="soxl-ytd">-</div>
-            <div class="row"><span class="rl">VIX</span><span class="rv" id="vix-val">-</span></div>
-            <div class="row"><span class="rl">S&amp;P500</span><span class="rv" id="sp500-val">-</span></div>
-            <div class="row"><span class="rl">NASDAQ</span><span class="rv" id="nasdaq-val">-</span></div>
-        </div>
-    </div>
+    <!-- 2행 3열 카드 그리드 -->
+    <div class="grid3">
 
-    <!-- 공포탐욕 / S&P -->
-    <div class="grid2">
-        <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.5s both;">
-            <div class="card-title">😱 공포·탐욕</div>
-            <div class="price-lg" id="fear-val" style="animation:fearPulse 2s ease infinite;">-</div>
-            <div class="change" id="fear-status">-</div>
-            <div class="bar"><div class="bar-fill" id="fear-bar" style="width:0%;"></div></div>
-            <div style="font-size:0.58rem;color:#475569;margin-top:4px;">0 극공포 ←→ 100 극탐욕</div>
+        <!-- FNGU -->
+        <div class="card" id="card-fngu" style="opacity:0;animation:fadeUp 0.5s ease 0.3s both;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                <span style="font-size:0.7rem;font-weight:800;">FNGU</span>
+                <span class="badge" id="fngu-badge" style="background:#ef444422;color:#ef4444;border:1px solid #ef444444;">-</span>
+            </div>
+            <div style="font-size:1.3rem;font-weight:900;line-height:1;" id="fngu-price">-</div>
+            <div style="font-size:0.6rem;margin:2px 0;" id="fngu-change">-</div>
+            <div class="row"><span class="rl">연초대비</span><span class="rv" id="fngu-ytd">-</span></div>
+            <div class="row"><span class="rl">52주 고</span><span class="rv">$34.14</span></div>
+            <div class="row"><span class="rl">52주 저</span><span class="rv">$7.95</span></div>
         </div>
-        <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.6s both;">
-            <div class="card-title">📈 S&amp;P500</div>
-            <div class="price" id="sp500-big">-</div>
-            <div class="change" id="sp500-change">-</div>
-            <div class="row"><span class="rl">연초대비</span><span class="rv" id="sp500-ytd">-</span></div>
-            <div class="row"><span class="rl">NASDAQ YTD</span><span class="rv" id="nasdaq-ytd">-</span></div>
+
+        <!-- SOXL -->
+        <div class="card" id="card-soxl" style="opacity:0;animation:fadeUp 0.5s ease 0.35s both;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                <span style="font-size:0.7rem;font-weight:800;">SOXL</span>
+                <span class="badge" style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44;">관심</span>
+            </div>
+            <div style="font-size:1.3rem;font-weight:900;line-height:1;" id="soxl-price">-</div>
+            <div style="font-size:0.6rem;margin:2px 0;" id="soxl-ytd">-</div>
+            <div class="row"><span class="rl">변동성</span><span class="rv">극도 높음</span></div>
+            <div class="row"><span class="rl">레버리지</span><span class="rv">3배</span></div>
+            <div class="row"><span class="rl">기준</span><span class="rv">-20%↓</span></div>
+        </div>
+
+        <!-- 공포탐욕 -->
+        <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.4s both;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                <span style="font-size:0.7rem;font-weight:800;">😱 공포탐욕</span>
+            </div>
+            <div style="font-size:1.3rem;font-weight:900;line-height:1;animation:fearPulse 2s ease infinite;" id="fear-val">-</div>
+            <div style="font-size:0.6rem;margin:2px 0;" id="fear-status">-</div>
+            <div class="bar"><div class="bar-fill" id="fear-bar" style="width:0%;"></div></div>
+            <div class="row" style="margin-top:4px;"><span class="rl">범위</span><span class="rv">0~100</span></div>
+            <div class="row"><span class="rl">기준</span><span class="rv">25↓ 매수</span></div>
+        </div>
+
+        <!-- VIX -->
+        <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.45s both;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                <span style="font-size:0.7rem;font-weight:800;">📊 VIX</span>
+                <span class="badge" id="vix-badge" style="background:#ef444422;color:#ef4444;border:1px solid #ef444444;">-</span>
+            </div>
+            <div style="font-size:1.3rem;font-weight:900;line-height:1;" id="vix-val">-</div>
+            <div style="font-size:0.6rem;margin:2px 0;" id="vix-status">-</div>
+            <div class="row" style="margin-top:4px;"><span class="rl">기준</span><span class="rv">30↑ 매수</span></div>
+            <div class="row"><span class="rl">극공포</span><span class="rv">40↑</span></div>
+        </div>
+
+        <!-- S&P500 -->
+        <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.5s both;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                <span style="font-size:0.7rem;font-weight:800;">📈 S&amp;P500</span>
+                <span class="badge" id="sp-badge" style="background:#ef444422;color:#ef4444;border:1px solid #ef444444;">-</span>
+            </div>
+            <div style="font-size:1.1rem;font-weight:900;line-height:1;" id="sp500-big">-</div>
+            <div style="font-size:0.6rem;margin:2px 0;" id="sp500-change">-</div>
+            <div class="row" style="margin-top:4px;"><span class="rl">연초대비</span><span class="rv" id="sp500-ytd">-</span></div>
+            <div class="row"><span class="rl">기준</span><span class="rv">-10%↓</span></div>
+        </div>
+
+        <!-- NASDAQ -->
+        <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.55s both;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                <span style="font-size:0.7rem;font-weight:800;">📉 NASDAQ</span>
+                <span class="badge" id="nq-badge" style="background:#ef444422;color:#ef4444;border:1px solid #ef444444;">-</span>
+            </div>
+            <div style="font-size:1.1rem;font-weight:900;line-height:1;" id="nasdaq-big">-</div>
+            <div style="font-size:0.6rem;margin:2px 0;" id="nasdaq-ytd">-</div>
+            <div class="row" style="margin-top:4px;"><span class="rl">연초대비</span><span class="rv" id="nasdaq-ytd2">-</span></div>
+            <div class="row"><span class="rl">기준</span><span class="rv">-15%↓</span></div>
         </div>
     </div>
 
     <!-- 체크리스트 -->
-    <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.7s both;">
+    <div class="card" style="margin-bottom:6px;opacity:0;animation:fadeUp 0.5s ease 0.6s both;">
         <div style="font-size:0.8rem;font-weight:800;color:var(--accent);margin-bottom:8px;">🎯 매수 체크리스트</div>
         <div class="cl-item" id="ci1" style="opacity:0;"><div class="chk chk-n" id="chk1"></div><span class="cl-text">공포지수 25↓</span><span class="cl-val" id="cv1">-</span></div>
         <div class="cl-item" id="ci2" style="opacity:0;"><div class="chk chk-n" id="chk2"></div><span class="cl-text">VIX 30↑</span><span class="cl-val" id="cv2">-</span></div>
@@ -222,12 +236,12 @@
                 <span style="font-size:0.7rem;color:var(--muted);">매수 준비도</span>
                 <span style="font-size:0.75rem;font-weight:800;" id="readiness-pct">-</span>
             </div>
-            <div class="bar"><div class="bar-fill" id="readiness-bar" style="width:0%;transition:width 1.5s ease 1.2s;"></div></div>
+            <div class="bar" style="height:6px;"><div class="bar-fill" id="readiness-bar" style="width:0%;transition:width 1.5s ease 1.2s;"></div></div>
         </div>
     </div>
 
     <!-- 전략 -->
-    <div class="card" style="border-left:3px solid var(--yellow);opacity:0;animation:fadeUp 0.5s ease 0.8s both;">
+    <div class="card" style="border-left:3px solid var(--yellow);margin-bottom:6px;opacity:0;animation:fadeUp 0.5s ease 0.7s both;">
         <div style="font-size:0.78rem;font-weight:800;color:var(--yellow);margin-bottom:6px;" id="strategy-title">⚠️ 로딩 중...</div>
         <div style="font-size:0.67rem;color:var(--muted);line-height:1.7;">
             <strong style="color:var(--text);">FNGU</strong> 30% 선매수 → VIX 35+ 또는 $15↓ 시 추가<br>
@@ -237,7 +251,7 @@
     </div>
 
     <!-- 경고 -->
-    <div style="background:#1a0a0a;border:1px solid #ef444433;border-radius:8px;padding:8px 12px;margin-bottom:6px;opacity:0;animation:fadeUp 0.5s ease 0.9s both;">
+    <div style="background:#1a0a0a;border:1px solid #ef444433;border-radius:8px;padding:8px 12px;margin-bottom:6px;opacity:0;animation:fadeUp 0.5s ease 0.8s both;">
         <div style="font-size:0.68rem;color:var(--red);font-weight:700;margin-bottom:3px;">⚠️ 투자 유의사항</div>
         <div style="font-size:0.62rem;color:var(--muted);line-height:1.6;">
             3배 레버리지 ETF — 장기보유 시 복리감가, 반등 후 매도 필수<br>
@@ -246,7 +260,7 @@
         </div>
     </div>
 
-    <footer style="opacity:0;animation:fadeUp 0.5s ease 1s both;">
+    <footer style="opacity:0;animation:fadeUp 0.5s ease 0.9s both;">
         <p><span id="footer-date">-</span> 기준</p>
         <p style="margin-top:3px;">개발자 <a href="mailto:capboy2000@naver.com">capboy2000@naver.com</a></p>
     </footer>
@@ -289,12 +303,12 @@ for (let i = 0; i < SEGMENTS; i++) {
 function animateLED(pct) {
     for (let i = 0; i < SEGMENTS; i++) {
         const threshold = (i / SEGMENTS) * 100;
-        const seg = document.getElementById('led-' + i);
-        const segColor = threshold >= 60 ? '#ef4444' : threshold >= 33 ? '#f59e0b' : '#22c55e';
         setTimeout(() => {
             if (pct > threshold) {
-                seg.style.background = segColor;
-                seg.style.boxShadow = `0 0 8px ${segColor}99`;
+                const seg = document.getElementById('led-' + i);
+                const c = threshold >= 60 ? '#ef4444' : threshold >= 33 ? '#f59e0b' : '#22c55e';
+                seg.style.background = c;
+                seg.style.boxShadow = `0 0 8px ${c}99`;
                 seg.style.transform = 'scaleY(1.1)';
             }
         }, i * 45);
@@ -317,7 +331,7 @@ function setChk(n, ok, val, delay) {
         const chk = document.getElementById('chk' + n);
         const cv = document.getElementById('cv' + n);
         ci.style.opacity = '1';
-        ci.style.animation = `slideIn 0.4s ease both`;
+        ci.style.animation = 'slideIn 0.4s ease both';
         ci.style.border = `1px solid ${ok ? '#22c55e33' : '#ef444422'}`;
         chk.className = 'chk ' + (ok ? 'chk-y' : 'chk-n');
         chk.textContent = ok ? '✓' : '';
@@ -327,23 +341,17 @@ function setChk(n, ok, val, delay) {
     }, delay);
 }
 
-function buildTicker(m) {
-    const items = [
-        { text: `FNGU $${m.fngu_price}`, up: m.fngu_change > 0 },
-        { text: `${m.fngu_change > 0 ? '▲' : '▼'}${Math.abs(m.fngu_change)}%`, up: m.fngu_change > 0 },
-        { text: `SOXL $${m.soxl_price}`, up: m.soxl_ytd > 0 },
-        { text: `S&P500 ${m.sp500.toLocaleString()}`, up: m.sp500_change > 0 },
-        { text: `${m.sp500_change > 0 ? '▲' : '▼'}${Math.abs(m.sp500_change)}%`, up: m.sp500_change > 0 },
-        { text: `VIX ${m.vix}`, up: false },
-        { text: `공포지수 ${m.fear_greed}`, up: false },
-        { text: `NASDAQ ${m.nasdaq.toLocaleString()}`, up: m.nasdaq_ytd > 0 },
-    ];
-    const ticker = document.getElementById('ticker');
-    [...items, ...items].forEach(item => {
-        const span = document.createElement('span');
-        span.textContent = item.text;
-        span.style.cssText = `font-size:0.6rem;color:${item.up ? '#22c55e' : item.text.includes('▼') ? '#ef4444' : '#94a3b8'};margin-right:20px;padding-left:4px;`;
-        ticker.appendChild(span);
+// 카드 호버
+function addHover(id, color) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('mouseenter', () => {
+        el.style.border = `1px solid ${color}55`;
+        el.style.boxShadow = `0 4px 16px ${color}22`;
+    });
+    el.addEventListener('mouseleave', () => {
+        el.style.border = '1px solid var(--border)';
+        el.style.boxShadow = 'none';
     });
 }
 
@@ -355,9 +363,24 @@ get(ref(db, '/')).then((snapshot) => {
     document.getElementById('last-updated').textContent = m.last_updated;
     document.getElementById('footer-date').textContent = m.last_updated;
 
-    buildTicker(m);
+    // 티커
+    const tickerItems = [
+        { t: `FNGU $${m.fngu_price} ${m.fngu_change > 0 ? '▲' : '▼'}${Math.abs(m.fngu_change)}%`, up: m.fngu_change > 0 },
+        { t: `SOXL $${m.soxl_price}`, up: null },
+        { t: `S&P500 ${m.sp500.toLocaleString()} ${m.sp500_change > 0 ? '▲' : '▼'}${Math.abs(m.sp500_change)}%`, up: m.sp500_change > 0 },
+        { t: `VIX ${m.vix}`, up: false },
+        { t: `공포지수 ${m.fear_greed} (${m.fear_greed_status})`, up: false },
+        { t: `NASDAQ ${m.nasdaq.toLocaleString()}`, up: m.nasdaq_ytd > 0 },
+    ];
+    const ticker = document.getElementById('ticker');
+    [...tickerItems, ...tickerItems].forEach(item => {
+        const span = document.createElement('span');
+        span.textContent = item.t;
+        span.style.cssText = `font-size:0.6rem;color:${item.up === true ? '#22c55e' : item.up === false ? '#ef4444' : '#94a3b8'};margin-right:20px;padding-left:4px;`;
+        ticker.appendChild(span);
+    });
 
-    // 시그널 색상
+    // 시그널
     const sColor = s.buy_readiness >= 60 ? '#ef4444' : s.buy_readiness >= 30 ? '#f59e0b' : '#22c55e';
     const sBg = s.buy_readiness >= 60 ? '#1c0505' : s.buy_readiness >= 30 ? '#1c1107' : '#052e16';
     const sLabel = s.buy_readiness >= 60 ? '🔴 강력 매수' : s.buy_readiness >= 30 ? '🟡 부분 매수' : '🟢 관망';
@@ -386,7 +409,7 @@ get(ref(db, '/')).then((snapshot) => {
     document.getElementById('fngu-price').textContent = '$' + m.fngu_price;
     const fc = document.getElementById('fngu-change');
     fc.textContent = (m.fngu_change > 0 ? '+' : '') + m.fngu_change + '% 오늘';
-    fc.className = 'change ' + (m.fngu_change < 0 ? 'neg' : 'pos');
+    fc.className = m.fngu_change < 0 ? 'neg' : 'pos';
     const fy = document.getElementById('fngu-ytd');
     fy.textContent = m.fngu_ytd + '%';
     fy.className = 'rv ' + (m.fngu_ytd < 0 ? 'neg' : 'pos');
@@ -396,22 +419,7 @@ get(ref(db, '/')).then((snapshot) => {
     document.getElementById('soxl-price').textContent = '$' + m.soxl_price;
     const sy = document.getElementById('soxl-ytd');
     sy.textContent = '연초대비 ' + m.soxl_ytd + '%';
-    sy.className = 'change ' + (m.soxl_ytd < 0 ? 'neg' : 'pos');
-
-    // 지수
-    document.getElementById('vix-val').textContent = m.vix;
-    document.getElementById('sp500-val').textContent = m.sp500.toLocaleString();
-    document.getElementById('nasdaq-val').textContent = m.nasdaq.toLocaleString();
-    document.getElementById('sp500-big').textContent = m.sp500.toLocaleString();
-    const sc = document.getElementById('sp500-change');
-    sc.textContent = (m.sp500_change > 0 ? '+' : '') + m.sp500_change + '%';
-    sc.className = 'change ' + (m.sp500_change < 0 ? 'neg' : 'pos');
-    const sytd = document.getElementById('sp500-ytd');
-    sytd.textContent = m.sp500_ytd + '%';
-    sytd.className = 'rv ' + (m.sp500_ytd < 0 ? 'neg' : 'pos');
-    const nytd = document.getElementById('nasdaq-ytd');
-    nytd.textContent = m.nasdaq_ytd + '%';
-    nytd.className = 'rv ' + (m.nasdaq_ytd < 0 ? 'neg' : 'pos');
+    sy.className = m.soxl_ytd < 0 ? 'neg' : 'pos';
 
     // 공포탐욕
     const fColor = m.fear_greed <= 25 ? '#ef4444' : m.fear_greed <= 50 ? '#f59e0b' : '#22c55e';
@@ -424,7 +432,40 @@ get(ref(db, '/')).then((snapshot) => {
     const fb = document.getElementById('fear-bar');
     fb.style.width = m.fear_greed + '%';
     fb.style.background = fColor;
-    fb.style.boxShadow = `0 0 8px ${fColor}`;
+    fb.style.boxShadow = `0 0 6px ${fColor}`;
+
+    // VIX
+    const vColor = m.vix >= 30 ? '#ef4444' : '#f59e0b';
+    document.getElementById('vix-val').textContent = m.vix;
+    document.getElementById('vix-val').style.color = vColor;
+    document.getElementById('vix-status').textContent = m.vix >= 40 ? '극도의 공포' : m.vix >= 30 ? '공포 구간 ✅' : '30 근접 ⚠️';
+    document.getElementById('vix-status').style.color = vColor;
+    document.getElementById('vix-badge').textContent = m.vix >= 30 ? '고공포' : '주의';
+    document.getElementById('vix-badge').style.color = vColor;
+
+    // S&P500
+    const spColor = m.sp500_change < 0 ? '#ef4444' : '#22c55e';
+    document.getElementById('sp500-big').textContent = m.sp500.toLocaleString();
+    const sc = document.getElementById('sp500-change');
+    sc.textContent = (m.sp500_change > 0 ? '+' : '') + m.sp500_change + '%';
+    sc.className = m.sp500_change < 0 ? 'neg' : 'pos';
+    const sytd = document.getElementById('sp500-ytd');
+    sytd.textContent = m.sp500_ytd + '%';
+    sytd.className = 'rv ' + (m.sp500_ytd < 0 ? 'neg' : 'pos');
+    document.getElementById('sp-badge').textContent = m.sp500_change < 0 ? '하락' : '상승';
+    document.getElementById('sp-badge').style.color = spColor;
+
+    // NASDAQ
+    const nqColor = m.nasdaq_ytd < 0 ? '#ef4444' : '#22c55e';
+    document.getElementById('nasdaq-big').textContent = m.nasdaq.toLocaleString();
+    const ny = document.getElementById('nasdaq-ytd');
+    ny.textContent = '연초대비 ' + m.nasdaq_ytd + '%';
+    ny.className = m.nasdaq_ytd < 0 ? 'neg' : 'pos';
+    const ny2 = document.getElementById('nasdaq-ytd2');
+    ny2.textContent = m.nasdaq_ytd + '%';
+    ny2.className = 'rv ' + (m.nasdaq_ytd < 0 ? 'neg' : 'pos');
+    document.getElementById('nq-badge').textContent = m.nasdaq_ytd < 0 ? '하락' : '상승';
+    document.getElementById('nq-badge').style.color = nqColor;
 
     // 체크리스트
     setChk(1, m.fear_greed <= 25, m.fear_greed, 800);
@@ -446,19 +487,9 @@ get(ref(db, '/')).then((snapshot) => {
     // 전략
     document.getElementById('strategy-title').textContent = '⚠️ ' + s.strategy;
 
-    // 카드 호버
-    ['card-fngu', 'card-soxl'].forEach((id, i) => {
-        const card = document.getElementById(id);
-        const hColor = i === 0 ? '#ef4444' : '#f59e0b';
-        card.addEventListener('mouseenter', () => {
-            card.style.border = `1px solid ${hColor}44`;
-            card.style.boxShadow = `0 4px 20px ${hColor}22`;
-        });
-        card.addEventListener('mouseleave', () => {
-            card.style.border = '1px solid var(--border)';
-            card.style.boxShadow = 'none';
-        });
-    });
+    // 호버
+    addHover('card-fngu', '#ef4444');
+    addHover('card-soxl', '#f59e0b');
 });
 </script>
 </body>
