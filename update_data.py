@@ -7,7 +7,6 @@ import requests
 from datetime import datetime
 import pytz
 
-# Firebase 인증
 cred_dict = json.loads(os.environ['FIREBASE_CREDENTIALS'])
 cred = credentials.Certificate(cred_dict)
 firebase_admin.initialize_app(cred, {
@@ -15,107 +14,116 @@ firebase_admin.initialize_app(cred, {
 })
 
 def get_fear_greed():
-    """Alternative.me API - 무료, 키 불필요"""
     try:
-        res = requests.get(
-            "https://api.alternative.me/fng/?limit=1",
-            timeout=10
-        )
+        res = requests.get("https://api.alternative.me/fng/?limit=1", timeout=10)
         data = res.json()
         val = int(data['data'][0]['value'])
-        status = data['data'][0]['value_classification']
-        # 한국어 변환
         status_map = {
-            "Extreme Fear": "극도의 공포",
-            "Fear": "공포",
-            "Neutral": "중립",
-            "Greed": "탐욕",
-            "Extreme Greed": "극도의 탐욕"
+            "Extreme Fear": "극도의 공포", "Fear": "공포",
+            "Neutral": "중립", "Greed": "탐욕", "Extreme Greed": "극도의 탐욕"
         }
-        return val, status_map.get(status, status)
+        return val, status_map.get(data['data'][0]['value_classification'], '알 수 없음')
     except Exception as e:
         print(f"공포탐욕 API 실패: {e}")
         return None, None
+
+def get_ytd(ticker_obj):
+    try:
+        hist = ticker_obj.history(period="ytd")
+        if hist.empty: return 0
+        current = ticker_obj.fast_info.last_price
+        return round((current - hist['Close'].iloc[0]) / hist['Close'].iloc[0] * 100, 2)
+    except:
+        return 0
+
+def get_ticker_data(symbol):
+    try:
+        t = yf.Ticker(symbol)
+        price = round(t.fast_info.last_price, 2)
+        prev = t.fast_info.previous_close
+        change = round((price - prev) / prev * 100, 2)
+        ytd = get_ytd(t)
+        return { "price": price, "change": change, "ytd": ytd }
+    except Exception as e:
+        print(f"{symbol} 데이터 수집 실패: {e}")
+        return None
 
 def get_market_data():
     korea = pytz.timezone('Asia/Seoul')
     now = datetime.now(korea).strftime('%Y-%m-%d %H:%M')
 
-    # 주가 데이터
-    fngu = yf.Ticker("FNGU")
-    soxl = yf.Ticker("SOXL")
+    # 기본 지수 데이터
     sp500 = yf.Ticker("^GSPC")
     nasdaq = yf.Ticker("^IXIC")
     vix = yf.Ticker("^VIX")
 
-    fngu_info = fngu.fast_info
-    soxl_info = soxl.fast_info
-    sp_info = sp500.fast_info
-    nq_info = nasdaq.fast_info
-    vix_info = vix.fast_info
+    sp_price = round(sp500.fast_info.last_price, 2)
+    sp_change = round((sp_price - sp500.fast_info.previous_close) / sp500.fast_info.previous_close * 100, 2)
+    sp_ytd = get_ytd(sp500)
+    nq_price = int(nasdaq.fast_info.last_price)
+    nq_ytd = get_ytd(nasdaq)
+    vix_price = round(vix.fast_info.last_price, 2)
 
-    # FNGU
-    fngu_price = round(fngu_info.last_price, 2)
-    fngu_change = round((fngu_price - fngu_info.previous_close) / fngu_info.previous_close * 100, 2)
-    fngu_hist = fngu.history(period="ytd")
-    fngu_ytd = round((fngu_price - fngu_hist['Close'].iloc[0]) / fngu_hist['Close'].iloc[0] * 100, 2)
-
-    # SOXL
-    soxl_price = round(soxl_info.last_price, 2)
-    soxl_hist = soxl.history(period="ytd")
-    soxl_ytd = round((soxl_price - soxl_hist['Close'].iloc[0]) / soxl_hist['Close'].iloc[0] * 100, 2)
-
-    # S&P500
-    sp_price = round(sp_info.last_price, 2)
-    sp_change = round((sp_price - sp_info.previous_close) / sp_info.previous_close * 100, 2)
-    sp_hist = sp500.history(period="ytd")
-    sp_ytd = round((sp_price - sp_hist['Close'].iloc[0]) / sp_hist['Close'].iloc[0] * 100, 2)
-
-    # NASDAQ
-    nq_price = int(nq_info.last_price)
-    nq_hist = nasdaq.history(period="ytd")
-    nq_ytd = round((nq_price - nq_hist['Close'].iloc[0]) / nq_hist['Close'].iloc[0] * 100, 2)
-
-    # VIX
-    vix_price = round(vix_info.last_price, 2)
-
-    # 공포탐욕 - Alternative.me 실시간
+    # 공포탐욕
     fear, fear_status = get_fear_greed()
     if fear is None:
-        # API 실패시 VIX 기반 근사치
         if vix_price >= 40: fear, fear_status = 10, "극도의 공포"
         elif vix_price >= 30: fear, fear_status = 22, "극도의 공포"
         elif vix_price >= 20: fear, fear_status = 38, "공포"
         else: fear, fear_status = 55, "중립"
 
-    # 매수 체크리스트
+    # Firebase에서 tickers 목록 읽기
+    tickers_snap = db.reference('tickers').get()
+    tickers_data = {}
+    if tickers_snap:
+        for symbol, info in tickers_snap.items():
+            if info.get('status') in ['active', 'watch']:
+                data = get_ticker_data(symbol)
+                if data:
+                    tickers_data[symbol] = {
+                        **data,
+                        "name": info.get('name', symbol),
+                        "type": info.get('type', 'etf'),
+                        "threshold": info.get('threshold', -20),
+                        "status": info.get('status', 'active')
+                    }
+                    print(f"✅ {symbol}: ${data['price']} ({data['ytd']}% YTD)")
+
+    # 기준값 읽기
+    criteria_snap = db.reference('criteria').get()
+    cr = criteria_snap if criteria_snap else {
+        'fear': 25, 'vix': 30, 'sp500': -10,
+        'nasdaq': -15, 'fngu': -20, 'soxl': -20
+    }
+
+    # 체크리스트 계산
     checks = 0
-    if fear <= 25: checks += 1
-    if vix_price >= 30: checks += 1
-    if sp_ytd <= -10: checks += 1
-    if fngu_ytd <= -20: checks += 1
-    if soxl_ytd <= -20: checks += 1
-    if nq_ytd <= -15: checks += 1
+    if fear <= cr.get('fear', 25): checks += 1
+    if vix_price >= cr.get('vix', 30): checks += 1
+    if sp_ytd <= cr.get('sp500', -10): checks += 1
+    if nq_ytd <= cr.get('nasdaq', -15): checks += 1
+    fngu_ytd = tickers_data.get('FNGU', {}).get('ytd', 0)
+    soxl_ytd = tickers_data.get('SOXL', {}).get('ytd', 0)
+    if fngu_ytd <= cr.get('fngu', -20): checks += 1
+    if soxl_ytd <= cr.get('soxl', -20): checks += 1
 
     buy_readiness = round(checks / 6 * 100)
 
+    # 메시지 읽기
+    msg_snap = db.reference('messages').get()
+    msg = msg_snap if msg_snap else {}
     if buy_readiness >= 60:
+        strategy = msg.get('strong', '강력 매수 시작')
         fngu_status = "강력 매수 구간"
-        strategy = "강력 매수 시작"
     elif buy_readiness >= 30:
+        strategy = msg.get('partial', '부분 매수 + 관망')
         fngu_status = "강력 매수 구간"
-        strategy = "부분 매수 + 관망"
     else:
+        strategy = msg.get('watch', '관망 유지')
         fngu_status = "관망 구간"
-        strategy = "관망 유지"
 
     return {
         "market": {
-            "fngu_price": fngu_price,
-            "fngu_change": fngu_change,
-            "fngu_ytd": fngu_ytd,
-            "soxl_price": soxl_price,
-            "soxl_ytd": soxl_ytd,
             "fear_greed": fear,
             "fear_greed_status": fear_status,
             "vix": vix_price,
@@ -124,18 +132,26 @@ def get_market_data():
             "sp500_ytd": sp_ytd,
             "nasdaq": nq_price,
             "nasdaq_ytd": nq_ytd,
-            "last_updated": now
+            "last_updated": now,
+            # 하위 호환성 유지
+            "fngu_price": tickers_data.get('FNGU', {}).get('price', 0),
+            "fngu_change": tickers_data.get('FNGU', {}).get('change', 0),
+            "fngu_ytd": fngu_ytd,
+            "soxl_price": tickers_data.get('SOXL', {}).get('price', 0),
+            "soxl_ytd": soxl_ytd,
         },
         "signal": {
             "fngu_status": fngu_status,
             "buy_readiness": buy_readiness,
             "checks": checks,
             "strategy": strategy
-        }
+        },
+        "tickers_data": tickers_data
     }
 
 data = get_market_data()
-db.reference('/').set(data)
-print("✅ 업데이트 완료:", data['market']['last_updated'])
-print("공포탐욕:", data['market']['fear_greed'], data['market']['fear_greed_status'])
-print("매수준비도:", data['signal']['buy_readiness'], "%", f"({data['signal']['checks']}/6)")
+db.reference('market').set(data['market'])
+db.reference('signal').set(data['signal'])
+db.reference('tickers_data').set(data['tickers_data'])
+print("✅ 전체 업데이트 완료:", data['market']['last_updated'])
+print("매수준비도:", data['signal']['buy_readiness'], "%")
