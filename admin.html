@@ -29,17 +29,23 @@
         .btn-danger:hover { background:#ef444433; }
         .btn-success { background:#22c55e22; color:var(--green); border:1px solid #22c55e44; }
         .btn-success:hover { background:#22c55e33; }
+        .btn-warning { background:#f59e0b22; color:var(--yellow); border:1px solid #f59e0b44; }
+        .btn-warning:hover { background:#f59e0b33; }
         .btn-sm { width:auto; padding:6px 12px; font-size:0.7rem; margin-top:0; }
         .section { background:var(--bg2); border-radius:12px; padding:16px; border:1px solid var(--border); margin-bottom:12px; }
         .section-title { font-size:0.85rem; font-weight:800; color:var(--accent); margin-bottom:14px; display:flex; align-items:center; gap:6px; }
         .admin-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid var(--border); margin-bottom:16px; }
         .admin-header h1 { font-size:1rem; color:var(--accent); font-weight:800; }
         .logout-btn { background:var(--bg3); border:1px solid var(--border); color:var(--muted); padding:5px 12px; border-radius:20px; font-size:0.65rem; cursor:pointer; }
-        .ticker-item { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--bg); border-radius:8px; margin-bottom:6px; border:1px solid var(--border); }
+        .ticker-item { background:var(--bg); border-radius:8px; margin-bottom:8px; border:1px solid var(--border); overflow:hidden; }
+        .ticker-header { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; }
         .ticker-info { display:flex; flex-direction:column; gap:3px; flex:1; }
         .ticker-name { font-size:0.82rem; font-weight:800; }
         .ticker-detail { font-size:0.62rem; color:var(--muted); }
         .ticker-actions { display:flex; gap:6px; flex-shrink:0; }
+        .ticker-edit { padding:12px; border-top:1px solid var(--border); background:var(--bg2); display:none; }
+        .ticker-edit.open { display:block; }
+        .edit-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
         .criteria-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
         .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:10px 20px; font-size:0.75rem; opacity:0; transition:all 0.3s; pointer-events:none; z-index:999; white-space:nowrap; }
         .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
@@ -54,7 +60,9 @@
         .status-off { background:#ef444422; color:var(--red); border:1px solid #ef444444; padding:2px 6px; border-radius:6px; font-size:0.6rem; font-weight:700; }
         .status-watch { background:#f59e0b22; color:var(--yellow); border:1px solid #f59e0b44; padding:2px 6px; border-radius:6px; font-size:0.6rem; font-weight:700; }
         .tag { padding:2px 7px; border-radius:10px; font-size:0.6rem; font-weight:600; background:var(--bg3); color:var(--muted); }
-        .price-badge { font-size:0.65rem; font-weight:700; color:var(--accent); }
+        .price-badge { font-size:0.65rem; font-weight:700; }
+        .price-pos { color:var(--green); }
+        .price-neg { color:var(--red); }
         .info-box { font-size:0.65rem; color:var(--muted); padding:8px; background:var(--bg); border-radius:6px; border-left:2px solid var(--accent); margin-bottom:8px; }
         @keyframes fadeUp { from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);} }
         .fade-up { animation:fadeUp 0.4s ease both; }
@@ -108,16 +116,16 @@
             <div class="section">
                 <div class="section-title">➕ 새 종목 추가</div>
                 <div class="info-box">💡 추가 즉시 대시보드에 반영됩니다</div>
-                <label>종목 심볼 (예: QQQ, TQQQ)</label>
+                <label>종목 심볼 (예: QQQ, NFLX)</label>
                 <input type="text" id="new-symbol" placeholder="심볼 입력 (대문자)" style="text-transform:uppercase;"/>
                 <label>종목 이름</label>
-                <input type="text" id="new-name" placeholder="예: QQQ (나스닥 100 ETF)"/>
+                <input type="text" id="new-name" placeholder="예: Netflix (주식)"/>
                 <label>종류</label>
                 <select id="new-type">
+                    <option value="stock">개별 주식</option>
                     <option value="etf">일반 ETF</option>
                     <option value="leverage">레버리지 ETF (2x)</option>
                     <option value="leverage3x">레버리지 ETF (3x)</option>
-                    <option value="stock">개별 종목</option>
                 </select>
                 <label>매수 기준 하락률 (%)</label>
                 <input type="number" id="new-threshold" placeholder="예: -20" step="1" value="-20"/>
@@ -221,89 +229,86 @@ async function recalcSignal() {
             get(ref(db, 'criteria')),
             get(ref(db, 'messages'))
         ]);
-
         const m = marketSnap.exists() ? marketSnap.val() : {};
         const td = tickersDataSnap.exists() ? tickersDataSnap.val() : {};
         const cr = criteriaSnap.exists() ? criteriaSnap.val() : { fear:25, vix:30, sp500:-10, nasdaq:-15, fngu:-20, soxl:-20 };
         const msg = messagesSnap.exists() ? messagesSnap.val() : {};
 
-        const fearT  = parseFloat(cr.fear  || 25);
-        const vixT   = parseFloat(cr.vix   || 30);
-        const spT    = parseFloat(cr.sp500 || -10);
-        const nqT    = parseFloat(cr.nasdaq|| -15);
-        const fnguT  = parseFloat(cr.fngu  || -20);
-        const soxlT  = parseFloat(cr.soxl  || -20);
+        const fearT = parseFloat(cr.fear||25), vixT = parseFloat(cr.vix||30);
+        const spT = parseFloat(cr.sp500||-10), nqT = parseFloat(cr.nasdaq||-15);
+        const fnguT = parseFloat(cr.fngu||-20), soxlT = parseFloat(cr.soxl||-20);
 
-        const fearOk  = (m.fear_greed || 0) <= fearT  ? 1 : 0;
-        const vixOk   = (m.vix || 0)        >= vixT   ? 1 : 0;
-        const spOk    = (m.sp500_ytd || 0)  <= spT    ? 1 : 0;
-        const nqOk    = (m.nasdaq_ytd || 0) <= nqT    ? 1 : 0;
-        const fnguOk  = (td['FNGU']?.ytd || 0) <= fnguT ? 1 : 0;
-        const soxlOk  = (td['SOXL']?.ytd || 0) <= soxlT ? 1 : 0;
+        const fearOk = (m.fear_greed||0) <= fearT ? 1 : 0;
+        const vixOk  = (m.vix||0) >= vixT ? 1 : 0;
+        const spOk   = (m.sp500_ytd||0) <= spT ? 1 : 0;
+        const nqOk   = (m.nasdaq_ytd||0) <= nqT ? 1 : 0;
+        const fnguOk = (td['FNGU']?.ytd||0) <= fnguT ? 1 : 0;
+        const soxlOk = (td['SOXL']?.ytd||0) <= soxlT ? 1 : 0;
 
-        const totalChecks = fearOk + vixOk + spOk + nqOk + fnguOk + soxlOk;
-        const buyReadiness = Math.round(totalChecks / 6 * 100);
+        const totalChecks = fearOk+vixOk+spOk+nqOk+fnguOk+soxlOk;
+        const buyReadiness = Math.round(totalChecks/6*100);
 
         const checkResults = {
-            fear:   { ok: fearOk,  val: m.fear_greed || 0,       label: `공포지수 ${fearT}↓` },
-            vix:    { ok: vixOk,   val: m.vix || 0,              label: `VIX ${vixT}↑` },
-            sp500:  { ok: spOk,    val: m.sp500_ytd || 0,        label: `S&P ${spT}%↓` },
-            nasdaq: { ok: nqOk,    val: m.nasdaq_ytd || 0,       label: `NASDAQ ${nqT}%↓` },
-            fngu:   { ok: fnguOk,  val: td['FNGU']?.ytd || 0,   label: `FNGU ${fnguT}%↓` },
-            soxl:   { ok: soxlOk,  val: td['SOXL']?.ytd || 0,   label: `SOXL ${soxlT}%↓` },
+            fear:   {ok:fearOk,  val:m.fear_greed||0,      label:`공포지수 ${fearT}↓`},
+            vix:    {ok:vixOk,   val:m.vix||0,             label:`VIX ${vixT}↑`},
+            sp500:  {ok:spOk,    val:m.sp500_ytd||0,       label:`S&P ${spT}%↓`},
+            nasdaq: {ok:nqOk,    val:m.nasdaq_ytd||0,      label:`NASDAQ ${nqT}%↓`},
+            fngu:   {ok:fnguOk,  val:td['FNGU']?.ytd||0,  label:`FNGU ${fnguT}%↓`},
+            soxl:   {ok:soxlOk,  val:td['SOXL']?.ytd||0,  label:`SOXL ${soxlT}%↓`},
         };
 
         let strategy, signalStatus;
-        if (buyReadiness >= 60) {
-            strategy = msg.strong || '강력 매수 시작';
-            signalStatus = '강력 매수 구간';
-        } else if (buyReadiness >= 30) {
-            strategy = msg.partial || '부분 매수 + 관망';
-            signalStatus = '부분 매수 구간';
-        } else {
-            strategy = msg.watch || '관망 유지';
-            signalStatus = '관망 구간';
-        }
+        if (buyReadiness >= 60) { strategy = msg.strong||'강력 매수 시작'; signalStatus = '강력 매수 구간'; }
+        else if (buyReadiness >= 30) { strategy = msg.partial||'부분 매수 + 관망'; signalStatus = '부분 매수 구간'; }
+        else { strategy = msg.watch||'관망 유지'; signalStatus = '관망 구간'; }
 
         await set(ref(db, 'signal'), {
-            signal_status: signalStatus,
-            buy_readiness: buyReadiness,
-            checks: totalChecks,
-            total_conditions: 6,
-            strategy: strategy,
-            check_results: checkResults,
-            ticker_checks: {}
+            signal_status: signalStatus, buy_readiness: buyReadiness,
+            checks: totalChecks, total_conditions: 6,
+            strategy, check_results: checkResults, ticker_checks: {}
         });
-
-        console.log(`✅ signal 재계산: ${totalChecks}/6 = ${buyReadiness}%`);
         return buyReadiness;
-    } catch(e) {
-        console.error('signal 재계산 실패:', e);
-        return null;
-    }
+    } catch(e) { console.error('signal 재계산 실패:', e); return null; }
 }
 
-// Yahoo Finance 가격 조회
+// ===== Yahoo Finance 가격 조회 =====
 async function fetchStockPrice(symbol) {
-    try {
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=ytd`;
-        const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
-        const data = await res.json();
-        const result = data?.chart?.result?.[0];
-        if (!result) return null;
-        const closes = result.indicators?.quote?.[0]?.close?.filter(v => v !== null);
-        if (!closes || closes.length < 2) return null;
-        const cur   = Math.round(closes[closes.length - 1] * 100) / 100;
-        const prev  = Math.round(closes[closes.length - 2] * 100) / 100;
-        const first = Math.round(closes[0] * 100) / 100;
-        return {
-            price:  cur,
-            change: Math.round((cur - prev) / prev * 10000) / 100,
-            ytd:    Math.round((cur - first) / first * 10000) / 100
-        };
-    } catch(e) {
-        console.error(`${symbol} 가격 조회 실패:`, e);
-        return null;
+    // 여러 프록시 시도
+    const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=ytd`)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query2.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=ytd`)}`
+    ];
+
+    for (const url of proxies) {
+        try {
+            const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+            const data = await res.json();
+            const result = data?.chart?.result?.[0];
+            if (!result) continue;
+            const closes = result.indicators?.quote?.[0]?.close?.filter(v => v != null);
+            if (!closes || closes.length < 2) continue;
+            const cur   = Math.round(closes[closes.length-1] * 100) / 100;
+            const prev  = Math.round(closes[closes.length-2] * 100) / 100;
+            const first = Math.round(closes[0] * 100) / 100;
+            return {
+                price:  cur,
+                change: Math.round((cur-prev)/prev*10000)/100,
+                ytd:    Math.round((cur-first)/first*10000)/100
+            };
+        } catch(e) { continue; }
+    }
+    console.error(`${symbol} 가격 조회 실패`);
+    return null;
+}
+
+// ===== 타입 라벨 =====
+function getTypeLabel(type) {
+    switch(type) {
+        case 'leverage3x': return '3X';
+        case 'leverage':   return '2X';
+        case 'etf':        return 'ETF';
+        case 'stock':      return '주식';
+        default:           return type || 'ETF';
     }
 }
 
@@ -320,10 +325,7 @@ window.doLogin = async function() {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('admin-screen').style.display = 'block';
             initAdmin();
-        } else {
-            err.style.display = 'block';
-            document.getElementById('pw-input').value = '';
-        }
+        } else { err.style.display = 'block'; document.getElementById('pw-input').value = ''; }
     } catch(e) {
         if (pw === DEFAULT_PW) {
             sessionStorage.setItem('admin_auth', 'true');
@@ -334,10 +336,7 @@ window.doLogin = async function() {
     }
 };
 
-window.doLogout = function() {
-    sessionStorage.removeItem('admin_auth');
-    location.reload();
-};
+window.doLogout = function() { sessionStorage.removeItem('admin_auth'); location.reload(); };
 
 if (sessionStorage.getItem('admin_auth') === 'true') {
     document.getElementById('login-screen').style.display = 'none';
@@ -348,19 +347,16 @@ if (sessionStorage.getItem('admin_auth') === 'true') {
 // ===== 탭 =====
 window.switchTab = function(tab) {
     ['tickers','criteria','status'].forEach(t => {
-        document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+        document.getElementById('tab-'+t).style.display = t===tab ? 'block' : 'none';
     });
-    document.querySelectorAll('.tab').forEach((el, i) => {
-        el.className = 'tab' + (['tickers','criteria','status'][i] === tab ? ' active' : '');
+    document.querySelectorAll('.tab').forEach((el,i) => {
+        el.className = 'tab'+(['tickers','criteria','status'][i]===tab ? ' active' : '');
     });
-    if (tab === 'status') loadDBStatus();
-    if (tab === 'criteria') loadCriteria();
+    if (tab==='status') loadDBStatus();
+    if (tab==='criteria') loadCriteria();
 };
 
-async function initAdmin() {
-    await loadTickers();
-    await loadCriteria();
-}
+async function initAdmin() { await loadTickers(); await loadCriteria(); }
 
 // ===== 종목 로드 =====
 async function loadTickers() {
@@ -373,11 +369,10 @@ async function loadTickers() {
 
         if (!tickerSnap.exists()) {
             await set(ref(db, 'tickers'), {
-                FNGU: { name:'FNGU (FANG+ 3X)', type:'leverage3x', threshold:-20, status:'active', active:true },
-                SOXL: { name:'SOXL (반도체 3X)', type:'leverage3x', threshold:-20, status:'active', active:true }
+                FNGU: {name:'FNGU (FANG+ 3X)', type:'leverage3x', threshold:-20, status:'active', active:true},
+                SOXL: {name:'SOXL (반도체 3X)', type:'leverage3x', threshold:-20, status:'active', active:true}
             });
-            await loadTickers();
-            return;
+            await loadTickers(); return;
         }
 
         const tickers = tickerSnap.val();
@@ -387,26 +382,71 @@ async function loadTickers() {
         Object.entries(tickers).forEach(([symbol, info]) => {
             const price = td[symbol]?.price;
             const ytd = td[symbol]?.ytd;
+            const priceColor = ytd >= 0 ? 'price-pos' : 'price-neg';
+
             const div = document.createElement('div');
             div.className = 'ticker-item';
+            div.id = `ticker-item-${symbol}`;
             div.innerHTML = `
-                <div class="ticker-info">
-                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                        <span class="ticker-name">${symbol}</span>
-                        <span class="tag">${info.type || 'etf'}</span>
-                        <span class="${info.status === 'active' ? 'status-on' : info.status === 'watch' ? 'status-watch' : 'status-off'}">
-                            ${info.status === 'active' ? '활성' : info.status === 'watch' ? '관심' : '비활성'}
+                <!-- 헤더 -->
+                <div class="ticker-header">
+                    <div class="ticker-info">
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                            <span class="ticker-name">${symbol}</span>
+                            <span class="tag">${getTypeLabel(info.type)}</span>
+                            <span class="${info.status==='active' ? 'status-on' : info.status==='watch' ? 'status-watch' : 'status-off'}">
+                                ${info.status==='active' ? '활성' : info.status==='watch' ? '관심' : '비활성'}
+                            </span>
+                        </div>
+                        <span class="ticker-detail price-badge ${priceColor}">
+                            ${price ? `$${price} (${ytd}%)` : '가격 없음'}
                         </span>
-                        ${price ? `<span class="price-badge">$${price} (${ytd}%)</span>` : ''}
+                        <span class="ticker-detail">${info.name} · 기준: ${info.threshold||−20}%↓</span>
                     </div>
-                    <span class="ticker-detail">${info.name} · 기준: ${info.threshold || -20}%↓</span>
+                    <div class="ticker-actions">
+                        <button class="btn btn-sm btn-warning" onclick="toggleEdit('${symbol}')">✏️ 수정</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTicker('${symbol}')">삭제</button>
+                    </div>
                 </div>
-                <div class="ticker-actions">
-                    <button class="btn btn-sm ${info.status === 'active' ? 'btn-danger' : 'btn-success'}"
-                        onclick="toggleTicker('${symbol}', '${info.status}')">
-                        ${info.status === 'active' ? '비활성화' : '활성화'}
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteTicker('${symbol}')">삭제</button>
+
+                <!-- 수정 패널 -->
+                <div class="ticker-edit" id="edit-${symbol}">
+                    <div style="font-size:0.72rem;font-weight:700;color:var(--accent);margin-bottom:10px;">✏️ ${symbol} 수정</div>
+                    <div class="edit-grid">
+                        <div style="grid-column:1/-1;">
+                            <label>종목 이름</label>
+                            <input type="text" id="edit-name-${symbol}" value="${info.name||''}"/>
+                        </div>
+                        <div>
+                            <label>종류</label>
+                            <select id="edit-type-${symbol}">
+                                <option value="stock" ${info.type==='stock'?'selected':''}>개별 주식</option>
+                                <option value="etf" ${info.type==='etf'?'selected':''}>일반 ETF</option>
+                                <option value="leverage" ${info.type==='leverage'?'selected':''}>레버리지 2X</option>
+                                <option value="leverage3x" ${info.type==='leverage3x'?'selected':''}>레버리지 3X</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>매수 기준 (%)</label>
+                            <input type="number" id="edit-threshold-${symbol}" value="${info.threshold||-20}" step="1"/>
+                        </div>
+                        <div>
+                            <label>상태</label>
+                            <select id="edit-status-${symbol}">
+                                <option value="active" ${info.status==='active'?'selected':''}>활성</option>
+                                <option value="watch" ${info.status==='watch'?'selected':''}>관심</option>
+                                <option value="inactive" ${info.status==='inactive'?'selected':''}>비활성</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>가격 재조회</label>
+                            <button class="btn btn-sm btn-warning" style="width:100%;margin-top:4px;" onclick="refreshPrice('${symbol}')">🔄 가격 업데이트</button>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:12px;">
+                        <button class="btn btn-primary" style="flex:1;margin-top:0;" onclick="saveTicker('${symbol}')">💾 저장</button>
+                        <button class="btn btn-danger" style="flex:1;margin-top:0;" onclick="toggleEdit('${symbol}')">취소</button>
+                    </div>
                 </div>
             `;
             list.appendChild(div);
@@ -415,6 +455,73 @@ async function loadTickers() {
         list.innerHTML = `<div style="color:var(--red);font-size:0.72rem;padding:12px;">로드 실패: ${e.message}</div>`;
     }
 }
+
+// ===== 수정 패널 토글 =====
+window.toggleEdit = function(symbol) {
+    const el = document.getElementById(`edit-${symbol}`);
+    el.classList.toggle('open');
+};
+
+// ===== 종목 저장 =====
+window.saveTicker = async function(symbol) {
+    try {
+        const name = document.getElementById(`edit-name-${symbol}`).value.trim();
+        const type = document.getElementById(`edit-type-${symbol}`).value;
+        const threshold = parseFloat(document.getElementById(`edit-threshold-${symbol}`).value) || -20;
+        const status = document.getElementById(`edit-status-${symbol}`).value;
+
+        if (!name) { showToast('이름을 입력하세요', 'error'); return; }
+
+        await update(ref(db, `tickers/${symbol}`), {
+            name, type, threshold, status, active: status === 'active'
+        });
+
+        // tickers_data도 업데이트
+        const tdSnap = await get(ref(db, `tickers_data/${symbol}`));
+        if (tdSnap.exists()) {
+            await update(ref(db, `tickers_data/${symbol}`), { name, type, threshold, status });
+        }
+
+        if (status === 'inactive') {
+            await remove(ref(db, `tickers_data/${symbol}`));
+        } else if (!tdSnap.exists() || status === 'active') {
+            // 비활성→활성 전환 시 가격 재조회
+            if (!tdSnap.exists()) {
+                const priceData = await fetchStockPrice(symbol);
+                if (priceData) {
+                    await set(ref(db, `tickers_data/${symbol}`), {
+                        ...priceData, name, type, threshold, status
+                    });
+                }
+            }
+        }
+
+        const readiness = await recalcSignal();
+        showToast(`✅ ${symbol} 저장 완료! 매수준비도 ${readiness}%`, 'success');
+        document.getElementById(`edit-${symbol}`).classList.remove('open');
+        await loadTickers();
+    } catch(e) { showToast('저장 실패: ' + e.message, 'error'); }
+};
+
+// ===== 가격 재조회 =====
+window.refreshPrice = async function(symbol) {
+    showToast(`⏳ ${symbol} 가격 조회 중...`, 'success');
+    try {
+        const priceData = await fetchStockPrice(symbol);
+        if (!priceData) { showToast(`${symbol} 가격 조회 실패`, 'error'); return; }
+
+        const snap = await get(ref(db, `tickers/${symbol}`));
+        const info = snap.val();
+        await set(ref(db, `tickers_data/${symbol}`), {
+            price: priceData.price, change: priceData.change, ytd: priceData.ytd,
+            name: info.name, type: info.type, threshold: info.threshold, status: info.status
+        });
+
+        const readiness = await recalcSignal();
+        showToast(`✅ ${symbol} $${priceData.price} (${priceData.ytd}% YTD) 업데이트됨`, 'success');
+        await loadTickers();
+    } catch(e) { showToast('가격 조회 실패: ' + e.message, 'error'); }
+};
 
 // ===== 종목 추가 =====
 window.addTicker = async function() {
@@ -427,57 +534,31 @@ window.addTicker = async function() {
     if (!symbol || !name) { showToast('심볼과 이름을 입력하세요', 'error'); return; }
 
     try {
-        showToast('⏳ 종목 추가 중...', 'success');
-
-        await set(ref(db, `tickers/${symbol}`), {
-            name, type, threshold, status, active: status === 'active'
-        });
+        showToast(`⏳ ${symbol} 추가 중...`, 'success');
+        await set(ref(db, `tickers/${symbol}`), { name, type, threshold, status, active: status==='active' });
 
         if (status === 'active' || status === 'watch') {
             const priceData = await fetchStockPrice(symbol);
-            await set(ref(db, `tickers_data/${symbol}`), {
-                price: priceData?.price || 0,
-                change: priceData?.change || 0,
-                ytd: priceData?.ytd || 0,
-                name, type, threshold, status
-            });
+            if (priceData) {
+                await set(ref(db, `tickers_data/${symbol}`), {
+                    price: priceData.price, change: priceData.change, ytd: priceData.ytd,
+                    name, type, threshold, status
+                });
+                showToast(`✅ ${symbol} $${priceData.price} 추가 완료!`, 'success');
+            } else {
+                await set(ref(db, `tickers_data/${symbol}`), {
+                    price: 0, change: 0, ytd: 0, name, type, threshold, status
+                });
+                showToast(`⚠️ ${symbol} 추가됨 (가격 조회 실패 - 수동 업데이트 필요)`, 'error');
+            }
         }
 
         const readiness = await recalcSignal();
-        showToast(`✅ ${symbol} 추가 완료! 매수준비도 ${readiness}% 반영됨`, 'success');
-
         document.getElementById('new-symbol').value = '';
         document.getElementById('new-name').value = '';
         document.getElementById('new-threshold').value = '-20';
         await loadTickers();
-    } catch(e) {
-        showToast('추가 실패: ' + e.message, 'error');
-    }
-};
-
-// ===== 종목 토글 =====
-window.toggleTicker = async function(symbol, currentStatus) {
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-    await update(ref(db, `tickers/${symbol}`), { status: newStatus, active: newStatus === 'active' });
-
-    if (newStatus === 'inactive') {
-        await remove(ref(db, `tickers_data/${symbol}`));
-    } else {
-        const snap = await get(ref(db, `tickers/${symbol}`));
-        const info = snap.val();
-        const priceData = await fetchStockPrice(symbol);
-        await set(ref(db, `tickers_data/${symbol}`), {
-            price: priceData?.price || 0,
-            change: priceData?.change || 0,
-            ytd: priceData?.ytd || 0,
-            name: info.name, type: info.type,
-            threshold: info.threshold, status: newStatus
-        });
-    }
-
-    const readiness = await recalcSignal();
-    showToast(`${symbol} ${newStatus === 'active' ? '활성화' : '비활성화'} → 매수준비도 ${readiness}% 반영됨`, 'success');
-    await loadTickers();
+    } catch(e) { showToast('추가 실패: ' + e.message, 'error'); }
 };
 
 // ===== 종목 삭제 =====
@@ -486,7 +567,7 @@ window.deleteTicker = async function(symbol) {
     await remove(ref(db, `tickers/${symbol}`));
     await remove(ref(db, `tickers_data/${symbol}`));
     const readiness = await recalcSignal();
-    showToast(`${symbol} 삭제 완료 → 매수준비도 ${readiness}% 반영됨`, 'success');
+    showToast(`${symbol} 삭제 완료 → 매수준비도 ${readiness}%`, 'success');
     await loadTickers();
 };
 
@@ -520,7 +601,7 @@ async function loadCriteria() {
     } catch(e) {}
 }
 
-// ===== 기준값 저장 (즉시 재계산) =====
+// ===== 기준값 저장 =====
 window.saveCriteria = async function() {
     try {
         await set(ref(db, 'criteria'), {
@@ -571,9 +652,7 @@ window.loadDBStatus = async function() {
         const snap = await get(ref(db, '/'));
         if (!snap.exists()) { content.innerHTML = '<div style="color:var(--red);">DB 없음</div>'; return; }
         const d = snap.val();
-        const m = d.market || {};
-        const td = d.tickers_data || {};
-        const s = d.signal || {};
+        const m = d.market || {}, td = d.tickers_data || {}, s = d.signal || {};
 
         document.getElementById('edit-fear').value   = m.fear_greed  || '';
         document.getElementById('edit-vix').value    = m.vix         || '';
@@ -584,21 +663,21 @@ window.loadDBStatus = async function() {
 
         const tickerRows = Object.entries(td).map(([sym, data]) =>
             `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
-                <span style="font-size:0.68rem;font-weight:700;">${sym}</span>
-                <span style="font-size:0.65rem;color:var(--accent);">$${data.price} (${data.ytd}% YTD) · 기준: ${data.threshold}%</span>
+                <span style="font-size:0.68rem;font-weight:700;">${sym} <span style="color:var(--muted);font-weight:400;">(${getTypeLabel(data.type)})</span></span>
+                <span style="font-size:0.65rem;color:${data.ytd>=0?'var(--green)':'var(--red)'};">$${data.price} (${data.ytd}% YTD) · 기준: ${data.threshold}%</span>
             </div>`
         ).join('');
 
         content.innerHTML = `
             <div style="margin-bottom:10px;">
                 <div style="font-size:0.65rem;color:var(--muted);margin-bottom:6px;">📊 활성 종목 (${Object.keys(td).length}개)</div>
-                ${tickerRows || '<div style="font-size:0.65rem;color:var(--muted);">없음</div>'}
+                ${tickerRows||'<div style="font-size:0.65rem;color:var(--muted);">없음</div>'}
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
                 ${[
-                    ['🕐 마지막 업데이트', m.last_updated || '-'],
-                    ['😱 공포지수', `${m.fear_greed || '-'} · ${m.fear_greed_status || '-'}`],
-                    ['📉 VIX', m.vix || '-'],
+                    ['🕐 마지막 업데이트', m.last_updated||'-'],
+                    ['😱 공포지수', `${m.fear_greed||'-'} · ${m.fear_greed_status||'-'}`],
+                    ['📉 VIX', m.vix||'-'],
                     ['📈 S&P500', `${(m.sp500||0).toLocaleString()} (${m.sp500_ytd||0}%)`],
                     ['💻 NASDAQ', `${(m.nasdaq||0).toLocaleString()} (${m.nasdaq_ytd||0}%)`],
                     ['🎯 매수준비도', `${s.buy_readiness||'-'}% (${s.checks||0}/6)`],
@@ -610,52 +689,47 @@ window.loadDBStatus = async function() {
                 `).join('')}
             </div>
         `;
-    } catch(e) {
-        content.innerHTML = `<div style="color:var(--red);font-size:0.72rem;">로드 실패: ${e.message}</div>`;
-    }
+    } catch(e) { content.innerHTML = `<div style="color:var(--red);">로드 실패: ${e.message}</div>`; }
 };
 
-// ===== 수동 데이터 저장 (즉시 재계산) =====
+// ===== 수동 데이터 저장 =====
 window.saveManualData = async function() {
     try {
         const korea = new Date().toLocaleString('ko-KR', {
             timeZone:'Asia/Seoul', year:'numeric', month:'2-digit',
             day:'2-digit', hour:'2-digit', minute:'2-digit'
         });
-
-        const fear   = parseInt(document.getElementById('edit-fear').value)   || 0;
-        const vix    = parseFloat(document.getElementById('edit-vix').value)   || 0;
-        const sp500  = parseFloat(document.getElementById('edit-sp500').value) || 0;
-        const spYtd  = parseFloat(document.getElementById('edit-sp-ytd').value)|| 0;
-        const nasdaq = parseInt(document.getElementById('edit-nasdaq').value)  || 0;
-        const nqYtd  = parseFloat(document.getElementById('edit-nq-ytd').value)|| 0;
+        const fear = parseInt(document.getElementById('edit-fear').value)||0;
+        const vix = parseFloat(document.getElementById('edit-vix').value)||0;
+        const sp500 = parseFloat(document.getElementById('edit-sp500').value)||0;
+        const spYtd = parseFloat(document.getElementById('edit-sp-ytd').value)||0;
+        const nasdaq = parseInt(document.getElementById('edit-nasdaq').value)||0;
+        const nqYtd = parseFloat(document.getElementById('edit-nq-ytd').value)||0;
 
         let fearStatus = '중립';
-        if (fear <= 25) fearStatus = '극도의 공포';
-        else if (fear <= 40) fearStatus = '공포';
-        else if (fear <= 60) fearStatus = '중립';
-        else if (fear <= 75) fearStatus = '탐욕';
-        else fearStatus = '극도의 탐욕';
+        if (fear<=25) fearStatus='극도의 공포';
+        else if (fear<=40) fearStatus='공포';
+        else if (fear<=60) fearStatus='중립';
+        else if (fear<=75) fearStatus='탐욕';
+        else fearStatus='극도의 탐욕';
 
         await update(ref(db, 'market'), {
-            fear_greed: fear, fear_greed_status: fearStatus,
-            vix, sp500, sp500_ytd: spYtd,
-            nasdaq, nasdaq_ytd: nqYtd,
-            last_updated: korea
+            fear_greed:fear, fear_greed_status:fearStatus,
+            vix, sp500, sp500_ytd:spYtd,
+            nasdaq, nasdaq_ytd:nqYtd, last_updated:korea
         });
-
         const readiness = await recalcSignal();
-        showToast(`✅ 수동 업데이트 완료! 매수준비도 ${readiness}% 반영됨`, 'success');
+        showToast(`✅ 수동 업데이트 완료! 매수준비도 ${readiness}%`, 'success');
         await loadDBStatus();
-    } catch(e) { showToast('저장 실패: ' + e.message, 'error'); }
+    } catch(e) { showToast('저장 실패: '+e.message, 'error'); }
 };
 
 // ===== 토스트 =====
-function showToast(msg, type = 'success') {
+function showToast(msg, type='success') {
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.className = `toast ${type} show`;
-    setTimeout(() => { t.className = 'toast'; }, 3500);
+    setTimeout(()=>{ t.className='toast'; }, 3500);
 }
 window.showToast = showToast;
 </script>
