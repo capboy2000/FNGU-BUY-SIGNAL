@@ -49,22 +49,16 @@
     <!-- 헤더 -->
     <div id="header" style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px;opacity:0;transform:translateY(-20px);transition:all 0.6s ease;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-
-            <!-- 왼쪽: 캔들차트 심볼 -->
             <div style="animation:floatL 3s ease-in-out infinite;">
                 <svg viewBox="0 0 56 56" width="56" height="56">
                     <defs>
                         <linearGradient id="gL1" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#1e3a5f"/>
-                            <stop offset="100%" stop-color="#0f172a"/>
+                            <stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#0f172a"/>
                         </linearGradient>
                         <linearGradient id="gL2" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stop-color="#38bdf8"/>
-                            <stop offset="100%" stop-color="#0ea5e9"/>
+                            <stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/>
                         </linearGradient>
-                        <filter id="fLs">
-                            <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#38bdf844"/>
-                        </filter>
+                        <filter id="fLs"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#38bdf844"/></filter>
                     </defs>
                     <rect x="1" y="1" width="54" height="54" rx="12" fill="url(#gL1)" stroke="#1e3a5f" stroke-width="1.5"/>
                     <line x1="8" y1="18" x2="48" y2="18" stroke="#1e3a5f" stroke-width="0.5"/>
@@ -84,39 +78,26 @@
                     <polyline points="42,18 46,21 42,24" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
-
-            <!-- 타이틀 -->
             <div style="text-align:center;flex:1;padding:0 8px;">
-                <div style="font-size:1.05rem;color:var(--accent);font-weight:800;animation:glow 3s ease infinite;letter-spacing:-0.3px;">🎯 레버리지 ETF</div>
+                <div style="font-size:1.05rem;color:var(--accent);font-weight:800;animation:glow 3s ease infinite;">🎯 레버리지 ETF</div>
                 <div style="font-size:0.9rem;color:var(--accent);font-weight:800;">매수 타이밍</div>
-                <div style="font-size:0.6rem;color:#64748b;margin-top:2px;">FNGU · SOXL | 1년 주기 하락 매수</div>
+                <div style="font-size:0.6rem;color:#64748b;margin-top:2px;">1년 주기 하락 매수 전략</div>
             </div>
-
-            <!-- 오른쪽: 업데이트 안내 -->
             <div style="text-align:right;min-width:80px;">
                 <div style="font-size:0.58rem;color:#475569;line-height:1.6;">
                     📡 데이터 업데이트<br>
-                    <span style="color:#64748b;">평일 오전 9시~</span><br>
-                    <span style="color:#64748b;">오후 6시 매 1시간</span><br>
-                    <span style="color:var(--accent);font-weight:600;">미국 장중 자동갱신</span>
+                    <span style="color:#64748b;">평일 매 1시간</span><br>
+                    <span style="color:var(--accent);font-weight:600;">자동 갱신</span>
                 </div>
             </div>
         </div>
-
-        <!-- 날짜 + 새로고침 -->
         <div style="display:flex;justify-content:center;align-items:center;gap:10px;margin-top:8px;">
             <div style="text-align:center;">
-                <div style="font-size:0.63rem;color:#64748b;">
-                    🕐 DB 업데이트: <span id="last-updated" style="color:var(--accent);font-weight:600;">로딩 중...</span>
-                </div>
-                <div style="font-size:0.58rem;color:#475569;margin-top:2px;">
-                    새로고침 시 최신 DB 데이터 반영
-                </div>
+                <div style="font-size:0.63rem;color:#64748b;">🕐 DB 업데이트: <span id="last-updated" style="color:var(--accent);font-weight:600;">로딩 중...</span></div>
+                <div style="font-size:0.58rem;color:#475569;margin-top:2px;">새로고침 시 최신 DB 반영</div>
             </div>
-            <button onclick="location.reload()" style="background:var(--bg2);border:1px solid var(--bg3);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:0.63rem;cursor:pointer;white-space:nowrap;">🔄 새로고침</button>
+            <button onclick="location.reload()" style="background:var(--bg2);border:1px solid var(--bg3);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:0.63rem;cursor:pointer;">🔄 새로고침</button>
         </div>
-
-        <!-- 티커 -->
         <div style="margin-top:8px;overflow:hidden;background:var(--bg2);border-radius:6px;padding:4px 0;border:1px solid var(--border);">
             <div id="ticker" style="display:flex;animation:ticker 14s linear infinite;white-space:nowrap;"></div>
         </div>
@@ -140,37 +121,11 @@
         <div id="signal-strategy" style="margin-top:10px;padding:6px 10px;background:var(--bg);border-radius:6px;font-size:0.65rem;color:var(--muted);text-align:center;">-</div>
     </div>
 
-    <!-- 3행 2열 카드 -->
+    <!-- 종목 카드 그리드 (동적 생성) -->
+    <div class="grid2" id="ticker-cards" style="margin-bottom:8px;"></div>
+
+    <!-- 시장 지표 (고정) -->
     <div class="grid2">
-        <!-- FNGU -->
-        <div class="card" id="card-fngu" style="opacity:0;animation:fadeUp 0.5s ease 0.3s both;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <span style="font-size:0.82rem;font-weight:800;">FNGU <span style="font-size:0.6rem;color:var(--muted);font-weight:500;">3X</span></span>
-                <span class="badge" id="fngu-badge" style="background:#ef444422;color:#ef4444;border:1px solid #ef444444;">-</span>
-            </div>
-            <div style="font-size:1.6rem;font-weight:900;line-height:1;" id="fngu-price">-</div>
-            <div style="font-size:0.65rem;margin:3px 0 6px;" id="fngu-change">-</div>
-            <div class="row"><span class="rl">연초대비</span><span class="rv" id="fngu-ytd">-</span></div>
-            <div class="row"><span class="rl">52주 최고</span><span class="rv">$34.14</span></div>
-            <div class="row"><span class="rl">52주 최저</span><span class="rv">$7.95</span></div>
-            <div class="row"><span class="rl">최저가 대비</span><span class="rv pos">+148%</span></div>
-        </div>
-
-        <!-- SOXL -->
-        <div class="card" id="card-soxl" style="opacity:0;animation:fadeUp 0.5s ease 0.35s both;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <span style="font-size:0.82rem;font-weight:800;">SOXL <span style="font-size:0.6rem;color:var(--muted);font-weight:500;">3X</span></span>
-                <span class="badge" style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44;">관심</span>
-            </div>
-            <div style="font-size:1.6rem;font-weight:900;line-height:1;" id="soxl-price">-</div>
-            <div style="font-size:0.65rem;margin:3px 0 6px;" id="soxl-change">-</div>
-            <div class="row"><span class="rl">연초대비</span><span class="rv" id="soxl-ytd">-</span></div>
-            <div class="row"><span class="rl">52주 최고</span><span class="rv">$68.15</span></div>
-            <div class="row"><span class="rl">52주 최저</span><span class="rv">$14.98</span></div>
-            <div class="row"><span class="rl">1년 수익률</span><span class="rv neg">-43.53%</span></div>
-        </div>
-
-        <!-- 공포탐욕 -->
         <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.4s both;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <span style="font-size:0.82rem;font-weight:800;">😱 공포·탐욕</span>
@@ -183,8 +138,6 @@
             <div class="row"><span class="rl">매수 기준</span><span class="rv">25↓</span></div>
             <div class="row"><span class="rl">조건 충족</span><span class="rv" id="fear-ok">-</span></div>
         </div>
-
-        <!-- VIX -->
         <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.45s both;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <span style="font-size:0.82rem;font-weight:800;">📊 VIX</span>
@@ -197,8 +150,6 @@
             <div class="row"><span class="rl">조건 충족</span><span class="rv" id="vix-ok">-</span></div>
             <div class="row"><span class="rl">현재 단계</span><span class="rv" id="vix-state">-</span></div>
         </div>
-
-        <!-- S&P500 -->
         <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.5s both;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <span style="font-size:0.82rem;font-weight:800;">📈 S&amp;P500</span>
@@ -211,8 +162,6 @@
             <div class="row"><span class="rl">조건 충족</span><span class="rv" id="sp-ok">-</span></div>
             <div class="row"><span class="rl">조정 단계</span><span class="rv" id="sp-stage">-</span></div>
         </div>
-
-        <!-- NASDAQ -->
         <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.55s both;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <span style="font-size:0.82rem;font-weight:800;">📉 NASDAQ</span>
@@ -228,14 +177,9 @@
     </div>
 
     <!-- 체크리스트 -->
-    <div class="card" style="margin-bottom:6px;opacity:0;animation:fadeUp 0.5s ease 0.6s both;">
+    <div class="card" id="checklist-card" style="margin-bottom:6px;opacity:0;animation:fadeUp 0.5s ease 0.6s both;">
         <div style="font-size:0.8rem;font-weight:800;color:var(--accent);margin-bottom:8px;">🎯 매수 체크리스트</div>
-        <div class="cl-item" id="ci1" style="opacity:0;"><div class="chk chk-n" id="chk1"></div><span class="cl-text">공포지수 25↓</span><span class="cl-val" id="cv1">-</span></div>
-        <div class="cl-item" id="ci2" style="opacity:0;"><div class="chk chk-n" id="chk2"></div><span class="cl-text">VIX 30↑</span><span class="cl-val" id="cv2">-</span></div>
-        <div class="cl-item" id="ci3" style="opacity:0;"><div class="chk chk-n" id="chk3"></div><span class="cl-text">S&amp;P -10%↓</span><span class="cl-val" id="cv3">-</span></div>
-        <div class="cl-item" id="ci4" style="opacity:0;"><div class="chk chk-n" id="chk4"></div><span class="cl-text">FNGU -20%↓</span><span class="cl-val" id="cv4">-</span></div>
-        <div class="cl-item" id="ci5" style="opacity:0;"><div class="chk chk-n" id="chk5"></div><span class="cl-text">SOXL -20%↓</span><span class="cl-val" id="cv5">-</span></div>
-        <div class="cl-item" id="ci6" style="opacity:0;"><div class="chk chk-n" id="chk6"></div><span class="cl-text">NASDAQ -15%↓</span><span class="cl-val" id="cv6">-</span></div>
+        <div id="checklist-items"></div>
         <div style="margin-top:8px;padding:6px 8px;background:var(--bg);border-radius:6px;">
             <div style="display:flex;justify-content:space-between;">
                 <span style="font-size:0.7rem;color:var(--muted);">매수 준비도</span>
@@ -259,22 +203,17 @@
     <div style="background:#1a0a0a;border:1px solid #ef444433;border-radius:8px;padding:8px 12px;margin-bottom:6px;opacity:0;animation:fadeUp 0.5s ease 0.8s both;">
         <div style="font-size:0.68rem;color:var(--red);font-weight:700;margin-bottom:3px;">⚠️ 투자 유의사항</div>
         <div style="font-size:0.62rem;color:var(--muted);line-height:1.6;">
-            3배 레버리지 ETF — 장기보유 시 복리감가, 반등 후 매도 필수<br>
+            레버리지 ETF — 장기보유 시 복리감가, 반등 후 매도 필수<br>
             하루 ±10~15% 변동 가능 · 분할 매수 원칙 준수<br>
             참고 정보이며 최종 투자 결정은 본인 판단과 책임
         </div>
     </div>
 
-    <!-- 푸터 -->
     <footer style="opacity:0;animation:fadeUp 0.5s ease 0.9s both;">
         <p><span id="footer-date">-</span> 기준 | 평일 매 1시간 자동 업데이트</p>
         <p style="margin-top:3px;">개발자 <a href="mailto:capboy2000@naver.com">capboy2000@naver.com</a></p>
         <p style="margin-top:8px;">
-            <a href="/admin.html" style="font-size:0.58rem;color:#334155;text-decoration:none;padding:3px 10px;border-radius:10px;border:1px solid #1e293b;transition:all 0.2s;"
-               onmouseover="this.style.color='#94a3b8';this.style.borderColor='#334155';"
-               onmouseout="this.style.color='#334155';this.style.borderColor='#1e293b';">
-                ⚙️ 관리자
-            </a>
+            <a href="/admin.html" style="font-size:0.58rem;color:#1e293b;text-decoration:none;padding:3px 10px;border-radius:10px;border:1px solid #1e293b;">⚙️ 관리자</a>
         </p>
     </footer>
 </div>
@@ -302,6 +241,7 @@ setTimeout(() => {
     h.style.transform = 'translateY(0)';
 }, 100);
 
+// LED
 const SEGMENTS = 20;
 const ledBar = document.getElementById('led-bar');
 for (let i = 0; i < SEGMENTS; i++) {
@@ -336,34 +276,76 @@ function countUp(el, target, duration = 1200) {
     }, 16);
 }
 
-function setChk(n, ok, val, delay) {
-    setTimeout(() => {
-        const ci = document.getElementById('ci' + n);
-        const chk = document.getElementById('chk' + n);
-        const cv = document.getElementById('cv' + n);
-        ci.style.opacity = '1';
-        ci.style.animation = 'slideIn 0.4s ease both';
-        ci.style.border = `1px solid ${ok ? '#22c55e33' : '#ef444422'}`;
-        chk.className = 'chk ' + (ok ? 'chk-y' : 'chk-n');
-        chk.textContent = ok ? '✓' : '';
-        chk.style.animation = 'popIn 0.3s ease both';
-        cv.textContent = val + (ok ? ' ✅' : ' ❌');
-        cv.style.color = ok ? '#22c55e' : '#ef4444';
-    }, delay);
-}
-
-function addHover(id, color) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('mouseenter', () => { el.style.border = `1px solid ${color}55`; el.style.boxShadow = `0 4px 16px ${color}22`; });
-    el.addEventListener('mouseleave', () => { el.style.border = '1px solid var(--border)'; el.style.boxShadow = 'none'; });
-}
-
 function getStage(ytd, threshold) {
     if (ytd <= -20) return '약세장 🔴';
     if (ytd <= threshold) return '조정장 🟡';
     if (ytd <= -5) return '경미 조정';
     return '정상 🟢';
+}
+
+// 종목 카드 동적 생성
+function createTickerCard(symbol, data, delay) {
+    const typeLabel = data.type === 'leverage3x' ? '3X' : data.type === 'leverage' ? '2X' : 'ETF';
+    const badgeColor = symbol === 'FNGU' ? '#ef4444' : symbol === 'SOXL' ? '#f59e0b' : '#38bdf8';
+    const statusText = data.ytd <= data.threshold ? '매수 구간' : data.status === 'watch' ? '관심' : '모니터링';
+    const ytdOk = data.ytd <= data.threshold;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = `opacity:0;animation:fadeUp 0.5s ease ${delay}s both;`;
+    card.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:0.82rem;font-weight:800;">${symbol} <span style="font-size:0.6rem;color:var(--muted);font-weight:500;">${typeLabel}</span></span>
+            <span class="badge" style="background:${badgeColor}22;color:${badgeColor};border:1px solid ${badgeColor}44;">${statusText}</span>
+        </div>
+        <div style="font-size:1.55rem;font-weight:900;line-height:1;">$${data.price}</div>
+        <div style="font-size:0.65rem;margin:3px 0 6px;color:${data.change < 0 ? 'var(--red)' : 'var(--green)'};">
+            ${data.change > 0 ? '+' : ''}${data.change}% 오늘
+        </div>
+        <div class="row">
+            <span class="rl">연초대비</span>
+            <span class="rv ${data.ytd < 0 ? 'neg' : 'pos'}">${data.ytd}%</span>
+        </div>
+        <div class="row">
+            <span class="rl">매수 기준</span>
+            <span class="rv">${data.threshold}%↓</span>
+        </div>
+        <div class="row">
+            <span class="rl">조건 충족</span>
+            <span class="rv ${ytdOk ? 'pos' : 'neg'}">${ytdOk ? '충족 ✅' : '미충족 ❌'}</span>
+        </div>
+        <div class="row">
+            <span class="rl">조정 단계</span>
+            <span class="rv ${data.ytd <= data.threshold ? 'neg' : ''}">${getStage(data.ytd, data.threshold)}</span>
+        </div>
+    `;
+
+    // 호버 효과
+    card.addEventListener('mouseenter', () => {
+        card.style.border = `1px solid ${badgeColor}55`;
+        card.style.boxShadow = `0 4px 16px ${badgeColor}22`;
+    });
+    card.addEventListener('mouseleave', () => {
+        card.style.border = '1px solid var(--border)';
+        card.style.boxShadow = 'none';
+    });
+
+    return card;
+}
+
+// 체크리스트 항목 생성
+function createCheckItem(label, ok, val, delay) {
+    setTimeout(() => {
+        const item = document.createElement('div');
+        item.className = 'cl-item';
+        item.style.cssText = `border:1px solid ${ok ? '#22c55e33' : '#ef444422'};opacity:0;animation:slideIn 0.4s ease both;`;
+        item.innerHTML = `
+            <div class="chk ${ok ? 'chk-y' : 'chk-n'}" style="animation:popIn 0.3s ease both;">${ok ? '✓' : ''}</div>
+            <span class="cl-text">${label}</span>
+            <span class="cl-val" style="color:${ok ? 'var(--green)' : 'var(--red)'};">${val} ${ok ? '✅' : '❌'}</span>
+        `;
+        document.getElementById('checklist-items').appendChild(item);
+    }, delay);
 }
 
 get(ref(db, '/')).then((snapshot) => {
@@ -373,25 +355,29 @@ get(ref(db, '/')).then((snapshot) => {
     }
     const d = snapshot.val();
     const m = d.market, s = d.signal;
+    const tickersData = d.tickers_data || {};
+    const tickers = d.tickers || {};
 
     document.getElementById('last-updated').textContent = m.last_updated;
     document.getElementById('footer-date').textContent = m.last_updated;
 
-    // 티커
-    const tickerItems = [
-        { t: `FNGU $${m.fngu_price} ${m.fngu_change > 0 ? '▲' : '▼'}${Math.abs(m.fngu_change)}%`, up: m.fngu_change > 0 },
-        { t: `SOXL $${m.soxl_price} ${m.soxl_ytd > 0 ? '▲' : '▼'}${Math.abs(m.soxl_ytd)}% YTD`, up: m.soxl_ytd > 0 },
-        { t: `S&P500 ${m.sp500.toLocaleString()} ${m.sp500_change > 0 ? '▲' : '▼'}${Math.abs(m.sp500_change)}%`, up: m.sp500_change > 0 },
+    // 티커 바
+    const tickerEl = document.getElementById('ticker');
+    const tickerItems = [];
+    Object.entries(tickersData).forEach(([sym, data]) => {
+        tickerItems.push({ t: `${sym} $${data.price} ${data.change > 0 ? '▲' : '▼'}${Math.abs(data.change)}%`, up: data.change > 0 });
+    });
+    tickerItems.push(
+        { t: `S&P500 ${m.sp500?.toLocaleString()} ${m.sp500_change > 0 ? '▲' : '▼'}${Math.abs(m.sp500_change)}%`, up: m.sp500_change > 0 },
         { t: `VIX ${m.vix}`, up: false },
         { t: `공포지수 ${m.fear_greed} · ${m.fear_greed_status}`, up: false },
-        { t: `NASDAQ ${m.nasdaq.toLocaleString()}`, up: m.nasdaq_ytd > 0 },
-    ];
-    const ticker = document.getElementById('ticker');
+        { t: `NASDAQ ${m.nasdaq?.toLocaleString()}`, up: m.nasdaq_ytd > 0 }
+    );
     [...tickerItems, ...tickerItems].forEach(item => {
         const span = document.createElement('span');
         span.textContent = item.t;
         span.style.cssText = `font-size:0.6rem;color:${item.up === true ? '#22c55e' : item.up === false ? '#ef4444' : '#94a3b8'};margin-right:24px;padding-left:4px;`;
-        ticker.appendChild(span);
+        tickerEl.appendChild(span);
     });
 
     // 시그널
@@ -414,24 +400,20 @@ get(ref(db, '/')).then((snapshot) => {
     document.getElementById('signal-strategy').style.borderLeft = `2px solid ${sColor}`;
     setTimeout(() => animateLED(s.buy_readiness), 400);
 
-    // FNGU
-    document.getElementById('fngu-price').textContent = '$' + m.fngu_price;
-    const fc = document.getElementById('fngu-change');
-    fc.textContent = (m.fngu_change > 0 ? '+' : '') + m.fngu_change + '% 오늘';
-    fc.className = m.fngu_change < 0 ? 'neg' : 'pos';
-    const fy = document.getElementById('fngu-ytd');
-    fy.textContent = m.fngu_ytd + '%';
-    fy.className = 'rv ' + (m.fngu_ytd < 0 ? 'neg' : 'pos');
-    document.getElementById('fngu-badge').textContent = s.fngu_status;
-
-    // SOXL
-    document.getElementById('soxl-price').textContent = '$' + m.soxl_price;
-    const sc2 = document.getElementById('soxl-change');
-    sc2.textContent = (m.soxl_ytd > 0 ? '+' : '') + m.soxl_ytd + '% 연초대비';
-    sc2.className = m.soxl_ytd < 0 ? 'neg' : 'pos';
-    const sy = document.getElementById('soxl-ytd');
-    sy.textContent = m.soxl_ytd + '%';
-    sy.className = 'rv ' + (m.soxl_ytd < 0 ? 'neg' : 'pos');
+    // ✅ 종목 카드 동적 생성
+    const cardGrid = document.getElementById('ticker-cards');
+    cardGrid.innerHTML = '';
+    let delay = 0.3;
+    // active 먼저, watch 다음 순서로 정렬
+    const sorted = Object.entries(tickersData).sort((a, b) => {
+        const order = { active: 0, watch: 1 };
+        return (order[a[1].status] || 2) - (order[b[1].status] || 2);
+    });
+    sorted.forEach(([symbol, data]) => {
+        const card = createTickerCard(symbol, data, delay);
+        cardGrid.appendChild(card);
+        delay += 0.05;
+    });
 
     // 공포탐욕
     const fColor = m.fear_greed <= 25 ? '#ef4444' : m.fear_greed <= 50 ? '#f59e0b' : '#22c55e';
@@ -460,19 +442,18 @@ get(ref(db, '/')).then((snapshot) => {
     const vixOk = document.getElementById('vix-ok');
     vixOk.textContent = m.vix >= 30 ? '충족 ✅' : '미충족 ❌';
     vixOk.className = 'rv ' + (m.vix >= 30 ? 'pos' : 'neg');
-    const vixState = document.getElementById('vix-state');
-    vixState.textContent = m.vix >= 40 ? '코로나급' : m.vix >= 30 ? 'VIX 30 돌파' : 'VIX ' + m.vix;
-    vixState.className = 'rv ' + (m.vix >= 30 ? 'neg' : '');
+    document.getElementById('vix-state').textContent = m.vix >= 40 ? '코로나급' : m.vix >= 30 ? 'VIX 30 돌파' : 'VIX ' + m.vix;
+    document.getElementById('vix-state').className = 'rv ' + (m.vix >= 30 ? 'neg' : '');
 
     // S&P500
-    document.getElementById('sp500-big').textContent = m.sp500.toLocaleString();
+    const spColor = m.sp500_change < 0 ? '#ef4444' : '#22c55e';
+    document.getElementById('sp500-big').textContent = m.sp500?.toLocaleString();
     const sc = document.getElementById('sp500-change');
     sc.textContent = (m.sp500_change > 0 ? '+' : '') + m.sp500_change + '%';
     sc.className = m.sp500_change < 0 ? 'neg' : 'pos';
     const sytd = document.getElementById('sp500-ytd');
     sytd.textContent = m.sp500_ytd + '%';
     sytd.className = 'rv ' + (m.sp500_ytd < 0 ? 'neg' : 'pos');
-    const spColor = m.sp500_change < 0 ? '#ef4444' : '#22c55e';
     document.getElementById('sp-badge').textContent = m.sp500_change < 0 ? '하락' : '상승';
     document.getElementById('sp-badge').style.color = spColor;
     const spOk = document.getElementById('sp-ok');
@@ -482,14 +463,14 @@ get(ref(db, '/')).then((snapshot) => {
     document.getElementById('sp-stage').className = 'rv ' + (m.sp500_ytd <= -10 ? 'neg' : '');
 
     // NASDAQ
-    document.getElementById('nasdaq-big').textContent = m.nasdaq.toLocaleString();
+    const nqColor = m.nasdaq_ytd < 0 ? '#ef4444' : '#22c55e';
+    document.getElementById('nasdaq-big').textContent = m.nasdaq?.toLocaleString();
     const ny = document.getElementById('nasdaq-change');
     ny.textContent = '연초대비 ' + m.nasdaq_ytd + '%';
     ny.className = m.nasdaq_ytd < 0 ? 'neg' : 'pos';
     const nytd = document.getElementById('nasdaq-ytd');
     nytd.textContent = m.nasdaq_ytd + '%';
     nytd.className = 'rv ' + (m.nasdaq_ytd < 0 ? 'neg' : 'pos');
-    const nqColor = m.nasdaq_ytd < 0 ? '#ef4444' : '#22c55e';
     document.getElementById('nq-badge').textContent = m.nasdaq_ytd < 0 ? '하락' : '상승';
     document.getElementById('nq-badge').style.color = nqColor;
     const nqOk = document.getElementById('nq-ok');
@@ -498,13 +479,23 @@ get(ref(db, '/')).then((snapshot) => {
     document.getElementById('nq-stage').textContent = getStage(m.nasdaq_ytd, -15);
     document.getElementById('nq-stage').className = 'rv ' + (m.nasdaq_ytd <= -15 ? 'neg' : '');
 
-    // 체크리스트
-    setChk(1, m.fear_greed <= 25, m.fear_greed, 800);
-    setChk(2, m.vix >= 30, m.vix, 900);
-    setChk(3, m.sp500_ytd <= -10, m.sp500_ytd + '%', 1000);
-    setChk(4, m.fngu_ytd <= -20, m.fngu_ytd + '%', 1100);
-    setChk(5, m.soxl_ytd <= -20, m.soxl_ytd + '%', 1200);
-    setChk(6, m.nasdaq_ytd <= -15, m.nasdaq_ytd + '%', 1300);
+    // ✅ 체크리스트 동적 생성
+    const crSnap = d.criteria || { fear:25, vix:30, sp500:-10, nasdaq:-15, fngu:-20, soxl:-20 };
+    const clItems = [
+        { label: `공포지수 ${crSnap.fear}↓`, ok: m.fear_greed <= crSnap.fear, val: m.fear_greed },
+        { label: `VIX ${crSnap.vix}↑`, ok: m.vix >= crSnap.vix, val: m.vix },
+        { label: `S&P ${crSnap.sp500}%↓`, ok: m.sp500_ytd <= crSnap.sp500, val: m.sp500_ytd + '%' },
+        { label: `NASDAQ ${crSnap.nasdaq}%↓`, ok: m.nasdaq_ytd <= crSnap.nasdaq, val: m.nasdaq_ytd + '%' },
+    ];
+    // 종목별 체크항목 동적 추가
+    sorted.forEach(([symbol, data]) => {
+        clItems.push({
+            label: `${symbol} ${data.threshold}%↓`,
+            ok: data.ytd <= data.threshold,
+            val: data.ytd + '%'
+        });
+    });
+    clItems.forEach((item, i) => createCheckItem(item.label, item.ok, item.val, 800 + i * 100));
 
     // 준비도
     const rp = document.getElementById('readiness-pct');
@@ -516,9 +507,6 @@ get(ref(db, '/')).then((snapshot) => {
     rb.style.boxShadow = `0 0 6px ${sColor}`;
 
     document.getElementById('strategy-title').textContent = '⚠️ ' + s.strategy;
-
-    addHover('card-fngu', '#ef4444');
-    addHover('card-soxl', '#f59e0b');
 });
 </script>
 </body>
