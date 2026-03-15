@@ -32,7 +32,6 @@
         .rv { font-weight:700; font-size:0.65rem; }
         footer { text-align:center; padding:8px 0; border-top:1px solid var(--border); color:#475569; font-size:0.62rem; margin-top:6px; }
         footer a { color:var(--accent); text-decoration:none; }
-
         @keyframes glow { 0%,100%{text-shadow:0 0 10px #38bdf888;}50%{text-shadow:0 0 25px #38bdf8cc;} }
         @keyframes floatL { 0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-5px) rotate(-3deg);} }
         @keyframes ticker { 0%{transform:translateX(0);}100%{transform:translateX(-50%);} }
@@ -107,7 +106,7 @@
     <div id="signal-meter" style="border-radius:12px;padding:14px 16px;margin-bottom:8px;opacity:0;animation:fadeUp 0.5s ease 0.2s both;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <span id="signal-title" style="font-size:0.78rem;font-weight:800;">📡 매수 신호</span>
-            <span style="font-size:0.7rem;color:var(--muted);"><span id="signal-checks">-</span>/6 조건</span>
+            <span style="font-size:0.7rem;color:var(--muted);"><span id="signal-checks">-</span> 조건</span>
         </div>
         <div id="led-bar" style="display:flex;gap:3px;margin-bottom:10px;"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -121,7 +120,7 @@
         <div id="signal-strategy" style="margin-top:10px;padding:6px 10px;background:var(--bg);border-radius:6px;font-size:0.65rem;color:var(--muted);text-align:center;">-</div>
     </div>
 
-    <!-- 종목 카드 그리드 (동적 생성) -->
+    <!-- 종목 카드 (동적) -->
     <div class="grid2" id="ticker-cards" style="margin-bottom:8px;"></div>
 
     <!-- 시장 지표 (고정) -->
@@ -135,7 +134,7 @@
             <div style="font-size:0.65rem;margin:3px 0 6px;" id="fear-status">-</div>
             <div class="bar"><div class="bar-fill" id="fear-bar" style="width:0%;"></div></div>
             <div style="font-size:0.56rem;color:#475569;margin:4px 0;">0 극공포 ←→ 100 극탐욕</div>
-            <div class="row"><span class="rl">매수 기준</span><span class="rv">25↓</span></div>
+            <div class="row"><span class="rl">매수 기준</span><span class="rv" id="fear-criteria">25↓</span></div>
             <div class="row"><span class="rl">조건 충족</span><span class="rv" id="fear-ok">-</span></div>
         </div>
         <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.45s both;">
@@ -145,7 +144,7 @@
             </div>
             <div style="font-size:1.6rem;font-weight:900;line-height:1;" id="vix-val">-</div>
             <div style="font-size:0.65rem;margin:3px 0 6px;" id="vix-status">-</div>
-            <div class="row"><span class="rl">매수 기준</span><span class="rv">30↑</span></div>
+            <div class="row"><span class="rl">매수 기준</span><span class="rv" id="vix-criteria">30↑</span></div>
             <div class="row"><span class="rl">극공포</span><span class="rv">40↑</span></div>
             <div class="row"><span class="rl">조건 충족</span><span class="rv" id="vix-ok">-</span></div>
             <div class="row"><span class="rl">현재 단계</span><span class="rv" id="vix-state">-</span></div>
@@ -158,7 +157,7 @@
             <div style="font-size:1.45rem;font-weight:900;line-height:1;" id="sp500-big">-</div>
             <div style="font-size:0.65rem;margin:3px 0 6px;" id="sp500-change">-</div>
             <div class="row"><span class="rl">연초대비</span><span class="rv" id="sp500-ytd">-</span></div>
-            <div class="row"><span class="rl">매수 기준</span><span class="rv">-10%↓</span></div>
+            <div class="row"><span class="rl">매수 기준</span><span class="rv" id="sp-criteria">-10%↓</span></div>
             <div class="row"><span class="rl">조건 충족</span><span class="rv" id="sp-ok">-</span></div>
             <div class="row"><span class="rl">조정 단계</span><span class="rv" id="sp-stage">-</span></div>
         </div>
@@ -170,19 +169,19 @@
             <div style="font-size:1.45rem;font-weight:900;line-height:1;" id="nasdaq-big">-</div>
             <div style="font-size:0.65rem;margin:3px 0 6px;" id="nasdaq-change">-</div>
             <div class="row"><span class="rl">연초대비</span><span class="rv" id="nasdaq-ytd">-</span></div>
-            <div class="row"><span class="rl">매수 기준</span><span class="rv">-15%↓</span></div>
+            <div class="row"><span class="rl">매수 기준</span><span class="rv" id="nq-criteria">-15%↓</span></div>
             <div class="row"><span class="rl">조건 충족</span><span class="rv" id="nq-ok">-</span></div>
             <div class="row"><span class="rl">조정 단계</span><span class="rv" id="nq-stage">-</span></div>
         </div>
     </div>
 
-    <!-- 체크리스트 -->
-    <div class="card" id="checklist-card" style="margin-bottom:6px;opacity:0;animation:fadeUp 0.5s ease 0.6s both;">
+    <!-- 체크리스트 (동적) -->
+    <div class="card" style="margin-bottom:6px;opacity:0;animation:fadeUp 0.5s ease 0.6s both;">
         <div style="font-size:0.8rem;font-weight:800;color:var(--accent);margin-bottom:8px;">🎯 매수 체크리스트</div>
         <div id="checklist-items"></div>
         <div style="margin-top:8px;padding:6px 8px;background:var(--bg);border-radius:6px;">
             <div style="display:flex;justify-content:space-between;">
-                <span style="font-size:0.7rem;color:var(--muted);">매수 준비도</span>
+                <span style="font-size:0.7rem;color:var(--muted);">매수 준비도 (<span id="checks-count">-</span>)</span>
                 <span style="font-size:0.75rem;font-weight:800;" id="readiness-pct">-</span>
             </div>
             <div class="bar" style="height:6px;"><div class="bar-fill" id="readiness-bar" style="width:0%;transition:width 1.5s ease 1.2s;"></div></div>
@@ -283,12 +282,12 @@ function getStage(ytd, threshold) {
     return '정상 🟢';
 }
 
-// 종목 카드 동적 생성
+// 종목 카드 생성
 function createTickerCard(symbol, data, delay) {
     const typeLabel = data.type === 'leverage3x' ? '3X' : data.type === 'leverage' ? '2X' : 'ETF';
     const badgeColor = symbol === 'FNGU' ? '#ef4444' : symbol === 'SOXL' ? '#f59e0b' : '#38bdf8';
-    const statusText = data.ytd <= data.threshold ? '매수 구간' : data.status === 'watch' ? '관심' : '모니터링';
     const ytdOk = data.ytd <= data.threshold;
+    const statusText = ytdOk ? '매수 구간' : data.status === 'watch' ? '모니터링' : '관심';
 
     const card = document.createElement('div');
     card.className = 'card';
@@ -298,54 +297,36 @@ function createTickerCard(symbol, data, delay) {
             <span style="font-size:0.82rem;font-weight:800;">${symbol} <span style="font-size:0.6rem;color:var(--muted);font-weight:500;">${typeLabel}</span></span>
             <span class="badge" style="background:${badgeColor}22;color:${badgeColor};border:1px solid ${badgeColor}44;">${statusText}</span>
         </div>
-        <div style="font-size:1.55rem;font-weight:900;line-height:1;">$${data.price}</div>
+        <div style="font-size:1.55rem;font-weight:900;line-height:1.1;">$${data.price}</div>
         <div style="font-size:0.65rem;margin:3px 0 6px;color:${data.change < 0 ? 'var(--red)' : 'var(--green)'};">
             ${data.change > 0 ? '+' : ''}${data.change}% 오늘
         </div>
-        <div class="row">
-            <span class="rl">연초대비</span>
-            <span class="rv ${data.ytd < 0 ? 'neg' : 'pos'}">${data.ytd}%</span>
-        </div>
-        <div class="row">
-            <span class="rl">매수 기준</span>
-            <span class="rv">${data.threshold}%↓</span>
-        </div>
-        <div class="row">
-            <span class="rl">조건 충족</span>
-            <span class="rv ${ytdOk ? 'pos' : 'neg'}">${ytdOk ? '충족 ✅' : '미충족 ❌'}</span>
-        </div>
-        <div class="row">
-            <span class="rl">조정 단계</span>
-            <span class="rv ${data.ytd <= data.threshold ? 'neg' : ''}">${getStage(data.ytd, data.threshold)}</span>
-        </div>
+        <div class="row"><span class="rl">연초대비</span><span class="rv ${data.ytd < 0 ? 'neg' : 'pos'}">${data.ytd}%</span></div>
+        <div class="row"><span class="rl">매수 기준</span><span class="rv">${data.threshold}%↓</span></div>
+        <div class="row"><span class="rl">조건 충족</span><span class="rv ${ytdOk ? 'pos' : 'neg'}">${ytdOk ? '충족 ✅' : '미충족 ❌'}</span></div>
+        <div class="row"><span class="rl">조정 단계</span><span class="rv ${ytdOk ? 'neg' : ''}">${getStage(data.ytd, data.threshold)}</span></div>
     `;
-
-    // 호버 효과
-    card.addEventListener('mouseenter', () => {
-        card.style.border = `1px solid ${badgeColor}55`;
-        card.style.boxShadow = `0 4px 16px ${badgeColor}22`;
-    });
-    card.addEventListener('mouseleave', () => {
-        card.style.border = '1px solid var(--border)';
-        card.style.boxShadow = 'none';
-    });
-
+    card.addEventListener('mouseenter', () => { card.style.border = `1px solid ${badgeColor}55`; card.style.boxShadow = `0 4px 16px ${badgeColor}22`; });
+    card.addEventListener('mouseleave', () => { card.style.border = '1px solid var(--border)'; card.style.boxShadow = 'none'; });
     return card;
 }
 
 // 체크리스트 항목 생성
 function createCheckItem(label, ok, val, delay) {
-    setTimeout(() => {
-        const item = document.createElement('div');
-        item.className = 'cl-item';
-        item.style.cssText = `border:1px solid ${ok ? '#22c55e33' : '#ef444422'};opacity:0;animation:slideIn 0.4s ease both;`;
-        item.innerHTML = `
-            <div class="chk ${ok ? 'chk-y' : 'chk-n'}" style="animation:popIn 0.3s ease both;">${ok ? '✓' : ''}</div>
-            <span class="cl-text">${label}</span>
-            <span class="cl-val" style="color:${ok ? 'var(--green)' : 'var(--red)'};">${val} ${ok ? '✅' : '❌'}</span>
-        `;
-        document.getElementById('checklist-items').appendChild(item);
-    }, delay);
+    return new Promise(resolve => {
+        setTimeout(() => {
+            const item = document.createElement('div');
+            item.className = 'cl-item';
+            item.style.cssText = `border:1px solid ${ok ? '#22c55e33' : '#ef444422'};opacity:0;animation:slideIn 0.4s ease both;`;
+            item.innerHTML = `
+                <div class="chk ${ok ? 'chk-y' : 'chk-n'}" style="animation:popIn 0.3s ease both;">${ok ? '✓' : ''}</div>
+                <span class="cl-text">${label}</span>
+                <span class="cl-val" style="color:${ok ? 'var(--green)' : 'var(--red)'};">${val} ${ok ? '✅' : '❌'}</span>
+            `;
+            document.getElementById('checklist-items').appendChild(item);
+            resolve();
+        }, delay);
+    });
 }
 
 get(ref(db, '/')).then((snapshot) => {
@@ -356,12 +337,14 @@ get(ref(db, '/')).then((snapshot) => {
     const d = snapshot.val();
     const m = d.market, s = d.signal;
     const tickersData = d.tickers_data || {};
-    const tickers = d.tickers || {};
+
+    // ✅ criteria DB에서 읽기
+    const cr = d.criteria || { fear:25, vix:30, sp500:-10, nasdaq:-15 };
 
     document.getElementById('last-updated').textContent = m.last_updated;
     document.getElementById('footer-date').textContent = m.last_updated;
 
-    // 티커 바
+    // 티커
     const tickerEl = document.getElementById('ticker');
     const tickerItems = [];
     Object.entries(tickersData).forEach(([sym, data]) => {
@@ -380,7 +363,8 @@ get(ref(db, '/')).then((snapshot) => {
         tickerEl.appendChild(span);
     });
 
-    // 시그널
+    // ✅ 시그널 - DB signal 값 그대로 사용
+    const totalConditions = s.total_conditions || 6;
     const sColor = s.buy_readiness >= 60 ? '#ef4444' : s.buy_readiness >= 30 ? '#f59e0b' : '#22c55e';
     const sBg = s.buy_readiness >= 60 ? '#1c0505' : s.buy_readiness >= 30 ? '#1c1107' : '#052e16';
     const sLabel = s.buy_readiness >= 60 ? '🔴 강력 매수' : s.buy_readiness >= 30 ? '🟡 부분 매수' : '🟢 관망';
@@ -389,7 +373,7 @@ get(ref(db, '/')).then((snapshot) => {
     meter.style.border = `1px solid ${sColor}44`;
     meter.style.boxShadow = `0 0 20px ${sColor}22`;
     document.getElementById('signal-title').style.color = sColor;
-    document.getElementById('signal-checks').textContent = s.checks;
+    document.getElementById('signal-checks').textContent = `${s.checks}/${totalConditions}`;
     const pctEl = document.getElementById('signal-pct');
     pctEl.style.color = sColor;
     pctEl.style.textShadow = `0 0 30px ${sColor}`;
@@ -400,50 +384,51 @@ get(ref(db, '/')).then((snapshot) => {
     document.getElementById('signal-strategy').style.borderLeft = `2px solid ${sColor}`;
     setTimeout(() => animateLED(s.buy_readiness), 400);
 
-    // ✅ 종목 카드 동적 생성
+    // 종목 카드 동적 생성
     const cardGrid = document.getElementById('ticker-cards');
     cardGrid.innerHTML = '';
     let delay = 0.3;
-    // active 먼저, watch 다음 순서로 정렬
     const sorted = Object.entries(tickersData).sort((a, b) => {
         const order = { active: 0, watch: 1 };
         return (order[a[1].status] || 2) - (order[b[1].status] || 2);
     });
     sorted.forEach(([symbol, data]) => {
-        const card = createTickerCard(symbol, data, delay);
-        cardGrid.appendChild(card);
+        cardGrid.appendChild(createTickerCard(symbol, data, delay));
         delay += 0.05;
     });
 
     // 공포탐욕
-    const fColor = m.fear_greed <= 25 ? '#ef4444' : m.fear_greed <= 50 ? '#f59e0b' : '#22c55e';
+    const fColor = m.fear_greed <= cr.fear ? '#ef4444' : m.fear_greed <= 50 ? '#f59e0b' : '#22c55e';
     document.getElementById('fear-val').textContent = m.fear_greed;
     document.getElementById('fear-val').style.color = fColor;
     document.getElementById('fear-status').textContent = m.fear_greed_status;
     document.getElementById('fear-status').style.color = fColor;
     document.getElementById('fear-badge').textContent = m.fear_greed_status;
     document.getElementById('fear-badge').style.color = fColor;
+    document.getElementById('fear-criteria').textContent = cr.fear + '↓';
     const fb = document.getElementById('fear-bar');
     fb.style.width = m.fear_greed + '%';
     fb.style.background = fColor;
-    fb.style.boxShadow = `0 0 6px ${fColor}`;
-    const fearOk = document.getElementById('fear-ok');
-    fearOk.textContent = m.fear_greed <= 25 ? '충족 ✅' : '미충족 ❌';
-    fearOk.className = 'rv ' + (m.fear_greed <= 25 ? 'pos' : 'neg');
+    const fearOk = m.fear_greed <= cr.fear;
+    const fearOkEl = document.getElementById('fear-ok');
+    fearOkEl.textContent = fearOk ? '충족 ✅' : '미충족 ❌';
+    fearOkEl.className = 'rv ' + (fearOk ? 'pos' : 'neg');
 
     // VIX
-    const vColor = m.vix >= 30 ? '#ef4444' : '#f59e0b';
+    const vColor = m.vix >= cr.vix ? '#ef4444' : '#f59e0b';
     document.getElementById('vix-val').textContent = m.vix;
     document.getElementById('vix-val').style.color = vColor;
-    document.getElementById('vix-status').textContent = m.vix >= 40 ? '극도의 공포' : m.vix >= 30 ? '공포 구간' : '30 근접 주의';
+    document.getElementById('vix-status').textContent = m.vix >= 40 ? '극도의 공포' : m.vix >= cr.vix ? '공포 구간' : cr.vix + ' 근접 주의';
     document.getElementById('vix-status').style.color = vColor;
-    document.getElementById('vix-badge').textContent = m.vix >= 40 ? '극공포' : m.vix >= 30 ? '고공포' : '주의';
+    document.getElementById('vix-badge').textContent = m.vix >= 40 ? '극공포' : m.vix >= cr.vix ? '고공포' : '주의';
     document.getElementById('vix-badge').style.color = vColor;
-    const vixOk = document.getElementById('vix-ok');
-    vixOk.textContent = m.vix >= 30 ? '충족 ✅' : '미충족 ❌';
-    vixOk.className = 'rv ' + (m.vix >= 30 ? 'pos' : 'neg');
-    document.getElementById('vix-state').textContent = m.vix >= 40 ? '코로나급' : m.vix >= 30 ? 'VIX 30 돌파' : 'VIX ' + m.vix;
-    document.getElementById('vix-state').className = 'rv ' + (m.vix >= 30 ? 'neg' : '');
+    document.getElementById('vix-criteria').textContent = cr.vix + '↑';
+    const vixOk = m.vix >= cr.vix;
+    const vixOkEl = document.getElementById('vix-ok');
+    vixOkEl.textContent = vixOk ? '충족 ✅' : '미충족 ❌';
+    vixOkEl.className = 'rv ' + (vixOk ? 'pos' : 'neg');
+    document.getElementById('vix-state').textContent = m.vix >= 40 ? '코로나급' : m.vix >= cr.vix ? 'VIX ' + cr.vix + ' 돌파' : 'VIX ' + m.vix;
+    document.getElementById('vix-state').className = 'rv ' + (vixOk ? 'neg' : '');
 
     // S&P500
     const spColor = m.sp500_change < 0 ? '#ef4444' : '#22c55e';
@@ -456,11 +441,12 @@ get(ref(db, '/')).then((snapshot) => {
     sytd.className = 'rv ' + (m.sp500_ytd < 0 ? 'neg' : 'pos');
     document.getElementById('sp-badge').textContent = m.sp500_change < 0 ? '하락' : '상승';
     document.getElementById('sp-badge').style.color = spColor;
-    const spOk = document.getElementById('sp-ok');
-    spOk.textContent = m.sp500_ytd <= -10 ? '충족 ✅' : '미충족 ❌';
-    spOk.className = 'rv ' + (m.sp500_ytd <= -10 ? 'pos' : 'neg');
-    document.getElementById('sp-stage').textContent = getStage(m.sp500_ytd, -10);
-    document.getElementById('sp-stage').className = 'rv ' + (m.sp500_ytd <= -10 ? 'neg' : '');
+    document.getElementById('sp-criteria').textContent = cr.sp500 + '%↓';
+    const spOk = m.sp500_ytd <= cr.sp500;
+    const spOkEl = document.getElementById('sp-ok');
+    spOkEl.textContent = spOk ? '충족 ✅' : '미충족 ❌';
+    spOkEl.className = 'rv ' + (spOk ? 'pos' : 'neg');
+    document.getElementById('sp-stage').textContent = getStage(m.sp500_ytd, cr.sp500);
 
     // NASDAQ
     const nqColor = m.nasdaq_ytd < 0 ? '#ef4444' : '#22c55e';
@@ -473,38 +459,56 @@ get(ref(db, '/')).then((snapshot) => {
     nytd.className = 'rv ' + (m.nasdaq_ytd < 0 ? 'neg' : 'pos');
     document.getElementById('nq-badge').textContent = m.nasdaq_ytd < 0 ? '하락' : '상승';
     document.getElementById('nq-badge').style.color = nqColor;
-    const nqOk = document.getElementById('nq-ok');
-    nqOk.textContent = m.nasdaq_ytd <= -15 ? '충족 ✅' : '미충족 ❌';
-    nqOk.className = 'rv ' + (m.nasdaq_ytd <= -15 ? 'pos' : 'neg');
-    document.getElementById('nq-stage').textContent = getStage(m.nasdaq_ytd, -15);
-    document.getElementById('nq-stage').className = 'rv ' + (m.nasdaq_ytd <= -15 ? 'neg' : '');
+    document.getElementById('nq-criteria').textContent = cr.nasdaq + '%↓';
+    const nqOk = m.nasdaq_ytd <= cr.nasdaq;
+    const nqOkEl = document.getElementById('nq-ok');
+    nqOkEl.textContent = nqOk ? '충족 ✅' : '미충족 ❌';
+    nqOkEl.className = 'rv ' + (nqOk ? 'pos' : 'neg');
+    document.getElementById('nq-stage').textContent = getStage(m.nasdaq_ytd, cr.nasdaq);
 
-    // ✅ 체크리스트 동적 생성
-    const crSnap = d.criteria || { fear:25, vix:30, sp500:-10, nasdaq:-15, fngu:-20, soxl:-20 };
-    const clItems = [
-        { label: `공포지수 ${crSnap.fear}↓`, ok: m.fear_greed <= crSnap.fear, val: m.fear_greed },
-        { label: `VIX ${crSnap.vix}↑`, ok: m.vix >= crSnap.vix, val: m.vix },
-        { label: `S&P ${crSnap.sp500}%↓`, ok: m.sp500_ytd <= crSnap.sp500, val: m.sp500_ytd + '%' },
-        { label: `NASDAQ ${crSnap.nasdaq}%↓`, ok: m.nasdaq_ytd <= crSnap.nasdaq, val: m.nasdaq_ytd + '%' },
+    // ✅ 체크리스트 동적 생성 - signal.check_results + ticker_checks 사용
+    const clContainer = document.getElementById('checklist-items');
+    clContainer.innerHTML = '';
+
+    // 고정 4개 항목
+    const fixedItems = [
+        { label: `공포지수 ${cr.fear}↓`, ok: fearOk, val: m.fear_greed },
+        { label: `VIX ${cr.vix}↑`, ok: vixOk, val: m.vix },
+        { label: `S&P ${cr.sp500}%↓`, ok: spOk, val: m.sp500_ytd + '%' },
+        { label: `NASDAQ ${cr.nasdaq}%↓`, ok: nqOk, val: m.nasdaq_ytd + '%' },
     ];
-    // 종목별 체크항목 동적 추가
-    sorted.forEach(([symbol, data]) => {
-        clItems.push({
-            label: `${symbol} ${data.threshold}%↓`,
-            ok: data.ytd <= data.threshold,
-            val: data.ytd + '%'
-        });
-    });
-    clItems.forEach((item, i) => createCheckItem(item.label, item.ok, item.val, 800 + i * 100));
 
-    // 준비도
+    // 종목별 항목
+    const tickerItems2 = sorted.map(([symbol, data]) => ({
+        label: `${symbol} ${data.threshold}%↓`,
+        ok: data.ytd <= data.threshold,
+        val: data.ytd + '%'
+    }));
+
+    const allItems = [...fixedItems, ...tickerItems2];
+
+    allItems.forEach((item, i) => {
+        setTimeout(() => {
+            const el = document.createElement('div');
+            el.className = 'cl-item';
+            el.style.cssText = `border:1px solid ${item.ok ? '#22c55e33' : '#ef444422'};opacity:0;animation:slideIn 0.4s ease both;`;
+            el.innerHTML = `
+                <div class="chk ${item.ok ? 'chk-y' : 'chk-n'}" style="animation:popIn 0.3s ease both;">${item.ok ? '✓' : ''}</div>
+                <span class="cl-text">${item.label}</span>
+                <span class="cl-val" style="color:${item.ok ? 'var(--green)' : 'var(--red)'};">${item.val} ${item.ok ? '✅' : '❌'}</span>
+            `;
+            clContainer.appendChild(el);
+        }, 800 + i * 100);
+    });
+
+    // ✅ 매수 준비도 - DB signal 값과 동기화
+    document.getElementById('checks-count').textContent = `${s.checks}/${totalConditions}`;
     const rp = document.getElementById('readiness-pct');
     rp.textContent = s.buy_readiness + '%';
     rp.style.color = sColor;
     const rb = document.getElementById('readiness-bar');
     rb.style.width = s.buy_readiness + '%';
     rb.style.background = sColor;
-    rb.style.boxShadow = `0 0 6px ${sColor}`;
 
     document.getElementById('strategy-title').textContent = '⚠️ ' + s.strategy;
 });
