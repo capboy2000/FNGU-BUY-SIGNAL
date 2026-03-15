@@ -48,7 +48,6 @@
 
     <!-- 헤더 -->
     <div id="header" style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px;opacity:0;transform:translateY(-20px);transition:all 0.6s ease;">
-
         <div style="display:flex;justify-content:space-between;align-items:center;">
 
             <!-- 왼쪽: 캔들차트 심볼 -->
@@ -143,7 +142,6 @@
 
     <!-- 3행 2열 카드 -->
     <div class="grid2">
-
         <!-- FNGU -->
         <div class="card" id="card-fngu" style="opacity:0;animation:fadeUp 0.5s ease 0.3s both;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -267,9 +265,17 @@
         </div>
     </div>
 
+    <!-- 푸터 -->
     <footer style="opacity:0;animation:fadeUp 0.5s ease 0.9s both;">
         <p><span id="footer-date">-</span> 기준 | 평일 매 1시간 자동 업데이트</p>
         <p style="margin-top:3px;">개발자 <a href="mailto:capboy2000@naver.com">capboy2000@naver.com</a></p>
+        <p style="margin-top:8px;">
+            <a href="/admin.html" style="font-size:0.58rem;color:#334155;text-decoration:none;padding:3px 10px;border-radius:10px;border:1px solid #1e293b;transition:all 0.2s;"
+               onmouseover="this.style.color='#94a3b8';this.style.borderColor='#334155';"
+               onmouseout="this.style.color='#334155';this.style.borderColor='#1e293b';">
+                ⚙️ 관리자
+            </a>
+        </p>
     </footer>
 </div>
 
@@ -290,14 +296,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// 헤더 등장
 setTimeout(() => {
     const h = document.getElementById('header');
     h.style.opacity = '1';
     h.style.transform = 'translateY(0)';
 }, 100);
 
-// LED 초기화
 const SEGMENTS = 20;
 const ledBar = document.getElementById('led-bar');
 for (let i = 0; i < SEGMENTS; i++) {
@@ -356,23 +360,20 @@ function addHover(id, color) {
 }
 
 function getStage(ytd, threshold) {
-    const abs = Math.abs(ytd);
     if (ytd <= -20) return '약세장 🔴';
     if (ytd <= threshold) return '조정장 🟡';
     if (ytd <= -5) return '경미 조정';
     return '정상 🟢';
 }
 
-// Firebase에서 데이터 읽기 (캐시 무시)
 get(ref(db, '/')).then((snapshot) => {
     if (!snapshot.exists()) {
-        document.getElementById('last-updated').textContent = 'DB 데이터 없음';
+        document.getElementById('last-updated').textContent = 'DB 없음';
         return;
     }
     const d = snapshot.val();
     const m = d.market, s = d.signal;
 
-    // 날짜 - Firebase DB의 last_updated 값 그대로 표시
     document.getElementById('last-updated').textContent = m.last_updated;
     document.getElementById('footer-date').textContent = m.last_updated;
 
