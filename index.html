@@ -123,7 +123,7 @@
     <!-- 종목 카드 (동적) -->
     <div class="grid2" id="ticker-cards" style="margin-bottom:8px;"></div>
 
-    <!-- 시장 지표 (고정) -->
+    <!-- 시장 지표 -->
     <div class="grid2">
         <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.4s both;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -134,7 +134,7 @@
             <div style="font-size:0.65rem;margin:3px 0 6px;" id="fear-status">-</div>
             <div class="bar"><div class="bar-fill" id="fear-bar" style="width:0%;"></div></div>
             <div style="font-size:0.56rem;color:#475569;margin:4px 0;">0 극공포 ←→ 100 극탐욕</div>
-            <div class="row"><span class="rl">매수 기준</span><span class="rv" id="fear-criteria">25↓</span></div>
+            <div class="row"><span class="rl">매수 기준</span><span class="rv" id="fear-criteria">-</span></div>
             <div class="row"><span class="rl">조건 충족</span><span class="rv" id="fear-ok">-</span></div>
         </div>
         <div class="card" style="opacity:0;animation:fadeUp 0.5s ease 0.45s both;">
@@ -144,7 +144,7 @@
             </div>
             <div style="font-size:1.6rem;font-weight:900;line-height:1;" id="vix-val">-</div>
             <div style="font-size:0.65rem;margin:3px 0 6px;" id="vix-status">-</div>
-            <div class="row"><span class="rl">매수 기준</span><span class="rv" id="vix-criteria">30↑</span></div>
+            <div class="row"><span class="rl">매수 기준</span><span class="rv" id="vix-criteria">-</span></div>
             <div class="row"><span class="rl">극공포</span><span class="rv">40↑</span></div>
             <div class="row"><span class="rl">조건 충족</span><span class="rv" id="vix-ok">-</span></div>
             <div class="row"><span class="rl">현재 단계</span><span class="rv" id="vix-state">-</span></div>
@@ -157,7 +157,7 @@
             <div style="font-size:1.45rem;font-weight:900;line-height:1;" id="sp500-big">-</div>
             <div style="font-size:0.65rem;margin:3px 0 6px;" id="sp500-change">-</div>
             <div class="row"><span class="rl">연초대비</span><span class="rv" id="sp500-ytd">-</span></div>
-            <div class="row"><span class="rl">매수 기준</span><span class="rv" id="sp-criteria">-10%↓</span></div>
+            <div class="row"><span class="rl">매수 기준</span><span class="rv" id="sp-criteria">-</span></div>
             <div class="row"><span class="rl">조건 충족</span><span class="rv" id="sp-ok">-</span></div>
             <div class="row"><span class="rl">조정 단계</span><span class="rv" id="sp-stage">-</span></div>
         </div>
@@ -169,13 +169,13 @@
             <div style="font-size:1.45rem;font-weight:900;line-height:1;" id="nasdaq-big">-</div>
             <div style="font-size:0.65rem;margin:3px 0 6px;" id="nasdaq-change">-</div>
             <div class="row"><span class="rl">연초대비</span><span class="rv" id="nasdaq-ytd">-</span></div>
-            <div class="row"><span class="rl">매수 기준</span><span class="rv" id="nq-criteria">-15%↓</span></div>
+            <div class="row"><span class="rl">매수 기준</span><span class="rv" id="nq-criteria">-</span></div>
             <div class="row"><span class="rl">조건 충족</span><span class="rv" id="nq-ok">-</span></div>
             <div class="row"><span class="rl">조정 단계</span><span class="rv" id="nq-stage">-</span></div>
         </div>
     </div>
 
-    <!-- 체크리스트 (동적) -->
+    <!-- 체크리스트 -->
     <div class="card" style="margin-bottom:6px;opacity:0;animation:fadeUp 0.5s ease 0.6s both;">
         <div style="font-size:0.8rem;font-weight:800;color:var(--accent);margin-bottom:8px;">🎯 매수 체크리스트</div>
         <div id="checklist-items"></div>
@@ -240,7 +240,6 @@ setTimeout(() => {
     h.style.transform = 'translateY(0)';
 }, 100);
 
-// LED
 const SEGMENTS = 20;
 const ledBar = document.getElementById('led-bar');
 for (let i = 0; i < SEGMENTS; i++) {
@@ -282,13 +281,11 @@ function getStage(ytd, threshold) {
     return '정상 🟢';
 }
 
-// 종목 카드 생성
 function createTickerCard(symbol, data, delay) {
     const typeLabel = data.type === 'leverage3x' ? '3X' : data.type === 'leverage' ? '2X' : 'ETF';
     const badgeColor = symbol === 'FNGU' ? '#ef4444' : symbol === 'SOXL' ? '#f59e0b' : '#38bdf8';
     const ytdOk = data.ytd <= data.threshold;
     const statusText = ytdOk ? '매수 구간' : data.status === 'watch' ? '모니터링' : '관심';
-
     const card = document.createElement('div');
     card.className = 'card';
     card.style.cssText = `opacity:0;animation:fadeUp 0.5s ease ${delay}s both;`;
@@ -311,24 +308,6 @@ function createTickerCard(symbol, data, delay) {
     return card;
 }
 
-// 체크리스트 항목 생성
-function createCheckItem(label, ok, val, delay) {
-    return new Promise(resolve => {
-        setTimeout(() => {
-            const item = document.createElement('div');
-            item.className = 'cl-item';
-            item.style.cssText = `border:1px solid ${ok ? '#22c55e33' : '#ef444422'};opacity:0;animation:slideIn 0.4s ease both;`;
-            item.innerHTML = `
-                <div class="chk ${ok ? 'chk-y' : 'chk-n'}" style="animation:popIn 0.3s ease both;">${ok ? '✓' : ''}</div>
-                <span class="cl-text">${label}</span>
-                <span class="cl-val" style="color:${ok ? 'var(--green)' : 'var(--red)'};">${val} ${ok ? '✅' : '❌'}</span>
-            `;
-            document.getElementById('checklist-items').appendChild(item);
-            resolve();
-        }, delay);
-    });
-}
-
 get(ref(db, '/')).then((snapshot) => {
     if (!snapshot.exists()) {
         document.getElementById('last-updated').textContent = 'DB 없음';
@@ -338,8 +317,14 @@ get(ref(db, '/')).then((snapshot) => {
     const m = d.market, s = d.signal;
     const tickersData = d.tickers_data || {};
 
-    // ✅ criteria DB에서 읽기
-    const cr = d.criteria || { fear:25, vix:30, sp500:-10, nasdaq:-15 };
+    // ✅ criteria DB에서 기준값 읽기
+    const cr = d.criteria || { fear:25, vix:30, sp500:-10, nasdaq:-15, fngu:-20, soxl:-20 };
+    const fearT = parseFloat(cr.fear  || 25);
+    const vixT  = parseFloat(cr.vix   || 30);
+    const spT   = parseFloat(cr.sp500 || -10);
+    const nqT   = parseFloat(cr.nasdaq|| -15);
+    const fnguT = parseFloat(cr.fngu  || -20);
+    const soxlT = parseFloat(cr.soxl  || -20);
 
     document.getElementById('last-updated').textContent = m.last_updated;
     document.getElementById('footer-date').textContent = m.last_updated;
@@ -363,8 +348,7 @@ get(ref(db, '/')).then((snapshot) => {
         tickerEl.appendChild(span);
     });
 
-    // ✅ 시그널 - DB signal 값 그대로 사용
-    const totalConditions = s.total_conditions || 6;
+    // 시그널
     const sColor = s.buy_readiness >= 60 ? '#ef4444' : s.buy_readiness >= 30 ? '#f59e0b' : '#22c55e';
     const sBg = s.buy_readiness >= 60 ? '#1c0505' : s.buy_readiness >= 30 ? '#1c1107' : '#052e16';
     const sLabel = s.buy_readiness >= 60 ? '🔴 강력 매수' : s.buy_readiness >= 30 ? '🟡 부분 매수' : '🟢 관망';
@@ -373,7 +357,7 @@ get(ref(db, '/')).then((snapshot) => {
     meter.style.border = `1px solid ${sColor}44`;
     meter.style.boxShadow = `0 0 20px ${sColor}22`;
     document.getElementById('signal-title').style.color = sColor;
-    document.getElementById('signal-checks').textContent = `${s.checks}/${totalConditions}`;
+    document.getElementById('signal-checks').textContent = `${s.checks}/6`;
     const pctEl = document.getElementById('signal-pct');
     pctEl.style.color = sColor;
     pctEl.style.textShadow = `0 0 30px ${sColor}`;
@@ -384,7 +368,7 @@ get(ref(db, '/')).then((snapshot) => {
     document.getElementById('signal-strategy').style.borderLeft = `2px solid ${sColor}`;
     setTimeout(() => animateLED(s.buy_readiness), 400);
 
-    // 종목 카드 동적 생성
+    // 종목 카드
     const cardGrid = document.getElementById('ticker-cards');
     cardGrid.innerHTML = '';
     let delay = 0.3;
@@ -398,36 +382,36 @@ get(ref(db, '/')).then((snapshot) => {
     });
 
     // 공포탐욕
-    const fColor = m.fear_greed <= cr.fear ? '#ef4444' : m.fear_greed <= 50 ? '#f59e0b' : '#22c55e';
+    const fColor = m.fear_greed <= fearT ? '#ef4444' : m.fear_greed <= 50 ? '#f59e0b' : '#22c55e';
     document.getElementById('fear-val').textContent = m.fear_greed;
     document.getElementById('fear-val').style.color = fColor;
     document.getElementById('fear-status').textContent = m.fear_greed_status;
     document.getElementById('fear-status').style.color = fColor;
     document.getElementById('fear-badge').textContent = m.fear_greed_status;
     document.getElementById('fear-badge').style.color = fColor;
-    document.getElementById('fear-criteria').textContent = cr.fear + '↓';
+    document.getElementById('fear-criteria').textContent = fearT + '↓';
     const fb = document.getElementById('fear-bar');
     fb.style.width = m.fear_greed + '%';
     fb.style.background = fColor;
-    const fearOk = m.fear_greed <= cr.fear;
+    const fearOk = m.fear_greed <= fearT;
     const fearOkEl = document.getElementById('fear-ok');
     fearOkEl.textContent = fearOk ? '충족 ✅' : '미충족 ❌';
     fearOkEl.className = 'rv ' + (fearOk ? 'pos' : 'neg');
 
     // VIX
-    const vColor = m.vix >= cr.vix ? '#ef4444' : '#f59e0b';
+    const vColor = m.vix >= vixT ? '#ef4444' : '#f59e0b';
     document.getElementById('vix-val').textContent = m.vix;
     document.getElementById('vix-val').style.color = vColor;
-    document.getElementById('vix-status').textContent = m.vix >= 40 ? '극도의 공포' : m.vix >= cr.vix ? '공포 구간' : cr.vix + ' 근접 주의';
+    document.getElementById('vix-status').textContent = m.vix >= 40 ? '극도의 공포' : m.vix >= vixT ? '공포 구간' : vixT + ' 근접 주의';
     document.getElementById('vix-status').style.color = vColor;
-    document.getElementById('vix-badge').textContent = m.vix >= 40 ? '극공포' : m.vix >= cr.vix ? '고공포' : '주의';
+    document.getElementById('vix-badge').textContent = m.vix >= 40 ? '극공포' : m.vix >= vixT ? '고공포' : '주의';
     document.getElementById('vix-badge').style.color = vColor;
-    document.getElementById('vix-criteria').textContent = cr.vix + '↑';
-    const vixOk = m.vix >= cr.vix;
+    document.getElementById('vix-criteria').textContent = vixT + '↑';
+    const vixOk = m.vix >= vixT;
     const vixOkEl = document.getElementById('vix-ok');
     vixOkEl.textContent = vixOk ? '충족 ✅' : '미충족 ❌';
     vixOkEl.className = 'rv ' + (vixOk ? 'pos' : 'neg');
-    document.getElementById('vix-state').textContent = m.vix >= 40 ? '코로나급' : m.vix >= cr.vix ? 'VIX ' + cr.vix + ' 돌파' : 'VIX ' + m.vix;
+    document.getElementById('vix-state').textContent = m.vix >= 40 ? '코로나급' : m.vix >= vixT ? `VIX ${vixT} 돌파` : 'VIX ' + m.vix;
     document.getElementById('vix-state').className = 'rv ' + (vixOk ? 'neg' : '');
 
     // S&P500
@@ -441,12 +425,12 @@ get(ref(db, '/')).then((snapshot) => {
     sytd.className = 'rv ' + (m.sp500_ytd < 0 ? 'neg' : 'pos');
     document.getElementById('sp-badge').textContent = m.sp500_change < 0 ? '하락' : '상승';
     document.getElementById('sp-badge').style.color = spColor;
-    document.getElementById('sp-criteria').textContent = cr.sp500 + '%↓';
-    const spOk = m.sp500_ytd <= cr.sp500;
+    document.getElementById('sp-criteria').textContent = spT + '%↓';
+    const spOk = m.sp500_ytd <= spT;
     const spOkEl = document.getElementById('sp-ok');
     spOkEl.textContent = spOk ? '충족 ✅' : '미충족 ❌';
     spOkEl.className = 'rv ' + (spOk ? 'pos' : 'neg');
-    document.getElementById('sp-stage').textContent = getStage(m.sp500_ytd, cr.sp500);
+    document.getElementById('sp-stage').textContent = getStage(m.sp500_ytd, spT);
 
     // NASDAQ
     const nqColor = m.nasdaq_ytd < 0 ? '#ef4444' : '#22c55e';
@@ -459,35 +443,26 @@ get(ref(db, '/')).then((snapshot) => {
     nytd.className = 'rv ' + (m.nasdaq_ytd < 0 ? 'neg' : 'pos');
     document.getElementById('nq-badge').textContent = m.nasdaq_ytd < 0 ? '하락' : '상승';
     document.getElementById('nq-badge').style.color = nqColor;
-    document.getElementById('nq-criteria').textContent = cr.nasdaq + '%↓';
-    const nqOk = m.nasdaq_ytd <= cr.nasdaq;
+    document.getElementById('nq-criteria').textContent = nqT + '%↓';
+    const nqOk = m.nasdaq_ytd <= nqT;
     const nqOkEl = document.getElementById('nq-ok');
     nqOkEl.textContent = nqOk ? '충족 ✅' : '미충족 ❌';
     nqOkEl.className = 'rv ' + (nqOk ? 'pos' : 'neg');
-    document.getElementById('nq-stage').textContent = getStage(m.nasdaq_ytd, cr.nasdaq);
+    document.getElementById('nq-stage').textContent = getStage(m.nasdaq_ytd, nqT);
 
-    // ✅ 체크리스트 동적 생성 - signal.check_results + ticker_checks 사용
+    // ✅ 체크리스트 - criteria 기준값 반영
     const clContainer = document.getElementById('checklist-items');
     clContainer.innerHTML = '';
-
-    // 고정 4개 항목
     const fixedItems = [
-        { label: `공포지수 ${cr.fear}↓`, ok: fearOk, val: m.fear_greed },
-        { label: `VIX ${cr.vix}↑`, ok: vixOk, val: m.vix },
-        { label: `S&P ${cr.sp500}%↓`, ok: spOk, val: m.sp500_ytd + '%' },
-        { label: `NASDAQ ${cr.nasdaq}%↓`, ok: nqOk, val: m.nasdaq_ytd + '%' },
+        { label: `공포지수 ${fearT}↓`,  ok: m.fear_greed <= fearT,                    val: m.fear_greed },
+        { label: `VIX ${vixT}↑`,        ok: m.vix >= vixT,                             val: m.vix },
+        { label: `S&P ${spT}%↓`,        ok: m.sp500_ytd <= spT,                        val: m.sp500_ytd + '%' },
+        { label: `NASDAQ ${nqT}%↓`,     ok: m.nasdaq_ytd <= nqT,                       val: m.nasdaq_ytd + '%' },
+        { label: `FNGU ${fnguT}%↓`,     ok: (tickersData['FNGU']?.ytd || 0) <= fnguT,  val: (tickersData['FNGU']?.ytd || 0) + '%' },
+        { label: `SOXL ${soxlT}%↓`,     ok: (tickersData['SOXL']?.ytd || 0) <= soxlT,  val: (tickersData['SOXL']?.ytd || 0) + '%' },
     ];
 
-    // 종목별 항목
-    const tickerItems2 = sorted.map(([symbol, data]) => ({
-        label: `${symbol} ${data.threshold}%↓`,
-        ok: data.ytd <= data.threshold,
-        val: data.ytd + '%'
-    }));
-
-    const allItems = [...fixedItems, ...tickerItems2];
-
-    allItems.forEach((item, i) => {
+    fixedItems.forEach((item, i) => {
         setTimeout(() => {
             const el = document.createElement('div');
             el.className = 'cl-item';
@@ -501,8 +476,8 @@ get(ref(db, '/')).then((snapshot) => {
         }, 800 + i * 100);
     });
 
-    // ✅ 매수 준비도 - DB signal 값과 동기화
-    document.getElementById('checks-count').textContent = `${s.checks}/${totalConditions}`;
+    // 준비도
+    document.getElementById('checks-count').textContent = `${s.checks}/6`;
     const rp = document.getElementById('readiness-pct');
     rp.textContent = s.buy_readiness + '%';
     rp.style.color = sColor;
@@ -515,3 +490,4 @@ get(ref(db, '/')).then((snapshot) => {
 </script>
 </body>
 </html>
+
