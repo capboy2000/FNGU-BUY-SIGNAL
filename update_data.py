@@ -81,7 +81,6 @@ def get_market_data():
         for symbol, info in tickers_snap.items():
             status = info.get('status', 'active')
             if status in ['active', 'watch']:
-                # 활성/관심 종목만 데이터 수집
                 data = get_ticker_data(symbol)
                 if data:
                     tickers_data[symbol] = {
@@ -93,52 +92,72 @@ def get_market_data():
                     }
                     print(f"✅ {symbol}: ${data['price']} ({data['ytd']}% YTD) [{status}]")
             else:
-                # 비활성 종목은 tickers_data에서 삭제
                 inactive_symbols.append(symbol)
-                print(f"⛔ {symbol}: 비활성 → tickers_data에서 제거")
+                print(f"⛔ {symbol}: 비활성 → 제거")
 
-    # 비활성 종목 tickers_data에서 삭제
+    # 비활성 종목 삭제
     for symbol in inactive_symbols:
         try:
             db.reference(f'tickers_data/{symbol}').delete()
-            print(f"🗑️ {symbol} tickers_data 삭제 완료")
         except:
             pass
 
-    # 기준값
+    # ✅ criteria DB에서 기준값 읽기
     criteria_snap = db.reference('criteria').get()
     cr = criteria_snap if criteria_snap else {
         'fear': 25, 'vix': 30, 'sp500': -10,
         'nasdaq': -15, 'fngu': -20, 'soxl': -20
     }
+    print(f"기준값: {cr}")
 
-    # 체크리스트 계산
-    checks = 0
-    if fear <= cr.get('fear', 25): checks += 1
-    if vix_price >= cr.get('vix', 30): checks += 1
-    if sp_ytd <= cr.get('sp500', -10): checks += 1
-    if nq_ytd <= cr.get('nasdaq', -15): checks += 1
+    # ✅ 체크리스트 계산 - criteria 기준으로
+    check_results = {}
+    total_checks = 0
 
-    # 활성 종목 중 FNGU, SOXL 기준 체크
-    fngu_ytd = tickers_data.get('FNGU', {}).get('ytd', 0)
-    soxl_ytd = tickers_data.get('SOXL', {}).get('ytd', 0)
-    if fngu_ytd <= cr.get('fngu', -20): checks += 1
-    if soxl_ytd <= cr.get('soxl', -20): checks += 1
+    # 고정 지표 체크
+    fear_ok = fear <= cr.get('fear', 25)
+    vix_ok = vix_price >= cr.get('vix', 30)
+    sp_ok = sp_ytd <= cr.get('sp500', -10)
+    nq_ok = nq_ytd <= cr.get('nasdaq', -15)
 
-    buy_readiness = round(checks / 6 * 100)
+    check_results['fear'] = {'ok': fear_ok, 'val': fear, 'label': f"공포지수 {cr.get('fear',25)}↓"}
+    check_results['vix'] = {'ok': vix_ok, 'val': vix_price, 'label': f"VIX {cr.get('vix',30)}↑"}
+    check_results['sp500'] = {'ok': sp_ok, 'val': sp_ytd, 'label': f"S&P {cr.get('sp500',-10)}%↓"}
+    check_results['nasdaq'] = {'ok': nq_ok, 'val': nq_ytd, 'label': f"NASDAQ {cr.get('nasdaq',-15)}%↓"}
+
+    if fear_ok: total_checks += 1
+    if vix_ok: total_checks += 1
+    if sp_ok: total_checks += 1
+    if nq_ok: total_checks += 1
+
+    # ✅ 종목별 체크 (각 종목의 threshold 사용)
+    ticker_checks = {}
+    for symbol, data in tickers_data.items():
+        threshold = data.get('threshold', -20)
+        ok = data['ytd'] <= threshold
+        ticker_checks[symbol] = {'ok': ok, 'val': data['ytd'], 'label': f"{symbol} {threshold}%↓"}
+        if ok: total_checks += 1
+
+    total_conditions = 4 + len(tickers_data)  # 고정 4개 + 종목 수
+    buy_readiness = round(total_checks / total_conditions * 100) if total_conditions > 0 else 0
 
     # 메시지
     msg_snap = db.reference('messages').get()
     msg = msg_snap if msg_snap else {}
     if buy_readiness >= 60:
         strategy = msg.get('strong', '강력 매수 시작')
-        fngu_status = "강력 매수 구간"
+        signal_status = "강력 매수 구간"
     elif buy_readiness >= 30:
         strategy = msg.get('partial', '부분 매수 + 관망')
-        fngu_status = "강력 매수 구간"
+        signal_status = "부분 매수 구간"
     else:
         strategy = msg.get('watch', '관망 유지')
-        fngu_status = "관망 구간"
+        signal_status = "관망 구간"
+
+    fngu_ytd = tickers_data.get('FNGU', {}).get('ytd', 0)
+    soxl_ytd = tickers_data.get('SOXL', {}).get('ytd', 0)
+
+    print(f"체크: {total_checks}/{total_conditions} = {buy_readiness}%")
 
     return {
         "market": {
@@ -158,10 +177,13 @@ def get_market_data():
             "soxl_ytd": soxl_ytd,
         },
         "signal": {
-            "fngu_status": fngu_status,
+            "signal_status": signal_status,
             "buy_readiness": buy_readiness,
-            "checks": checks,
-            "strategy": strategy
+            "checks": total_checks,
+            "total_conditions": total_conditions,
+            "strategy": strategy,
+            "check_results": check_results,
+            "ticker_checks": ticker_checks
         },
         "tickers_data": tickers_data
     }
@@ -170,10 +192,7 @@ data = get_market_data()
 db.reference('market').set(data['market'])
 db.reference('signal').set(data['signal'])
 
-# tickers_data 업데이트 (활성 종목만)
 if data['tickers_data']:
     db.reference('tickers_data').update(data['tickers_data'])
 
 print("✅ 전체 업데이트 완료:", data['market']['last_updated'])
-print("활성 종목:", list(data['tickers_data'].keys()))
-print("매수준비도:", data['signal']['buy_readiness'], "%")
