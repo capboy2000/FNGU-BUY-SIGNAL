@@ -14,6 +14,31 @@ firebase_admin.initialize_app(cred, {
 })
 
 def get_fear_greed():
+    # 1순위: CNN Fear & Greed Index (주식시장)
+    try:
+        url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Referer": "https://www.cnn.com/markets/fear-and-greed"
+        }
+        res = requests.get(url, headers=headers, timeout=10)
+        data = res.json()
+        val = round(data['fear_and_greed']['score'])
+        rating = data['fear_and_greed']['rating']
+        status_map = {
+            "Extreme Fear": "극도의 공포",
+            "Fear": "공포",
+            "Neutral": "중립",
+            "Greed": "탐욕",
+            "Extreme Greed": "극도의 탐욕"
+        }
+        status = status_map.get(rating.title(), rating)
+        print(f"✅ CNN 공포지수: {val} ({status})")
+        return val, status
+    except Exception as e:
+        print(f"CNN API 실패: {e}")
+
+    # 2순위: Alternative.me (백업용)
     try:
         res = requests.get("https://api.alternative.me/fng/?limit=1", timeout=10)
         data = res.json()
@@ -22,9 +47,11 @@ def get_fear_greed():
             "Extreme Fear": "극도의 공포", "Fear": "공포",
             "Neutral": "중립", "Greed": "탐욕", "Extreme Greed": "극도의 탐욕"
         }
-        return val, status_map.get(data['data'][0]['value_classification'], '알 수 없음')
+        status = status_map.get(data['data'][0]['value_classification'], '알 수 없음')
+        print(f"⚠️ Alternative.me 백업 사용: {val} ({status})")
+        return val, status
     except Exception as e:
-        print(f"공포탐욕 API 실패: {e}")
+        print(f"Alternative.me도 실패: {e}")
         return None, None
 
 def get_ytd(ticker_obj):
@@ -69,7 +96,9 @@ def get_market_data():
         elif vix_price >= 30: fear, fear_status = 22, "극도의 공포"
         elif vix_price >= 20: fear, fear_status = 38, "공포"
         else: fear, fear_status = 55, "중립"
+        print(f"⚠️ VIX 기반 공포지수 대체: {fear}")
 
+    # tickers DB에서 읽기
     tickers_snap = db.reference('tickers').get()
     tickers_data = {}
     inactive_symbols = []
@@ -96,9 +125,11 @@ def get_market_data():
     for symbol in inactive_symbols:
         try:
             db.reference(f'tickers_data/{symbol}').delete()
+            print(f"🗑️ {symbol} 비활성 → 삭제")
         except:
             pass
 
+    # criteria DB에서 기준값 읽기
     criteria_snap = db.reference('criteria').get()
     cr = criteria_snap if criteria_snap else {
         'fear': 25, 'vix': 30, 'sp500': -10, 'nasdaq': -15, 'fngu': -20, 'soxl': -20
@@ -127,12 +158,12 @@ def get_market_data():
     buy_readiness = round(total_checks / total_conditions * 100)
 
     check_results = {
-        'fear':   {'ok': fear_ok,  'val': float(fear),     'label': f"공포지수 {int(fear_t)}↓"},
-        'vix':    {'ok': vix_ok,   'val': float(vix_price),'label': f"VIX {int(vix_t)}↑"},
-        'sp500':  {'ok': sp_ok,    'val': float(sp_ytd),   'label': f"S&P {sp_t}%↓"},
-        'nasdaq': {'ok': nq_ok,    'val': float(nq_ytd),   'label': f"NASDAQ {nq_t}%↓"},
-        'fngu':   {'ok': fngu_ok,  'val': float(fngu_ytd), 'label': f"FNGU {fngu_t}%↓"},
-        'soxl':   {'ok': soxl_ok,  'val': float(soxl_ytd), 'label': f"SOXL {soxl_t}%↓"},
+        'fear':   {'ok': fear_ok,  'val': float(fear),      'label': f"공포지수 {int(fear_t)}↓"},
+        'vix':    {'ok': vix_ok,   'val': float(vix_price), 'label': f"VIX {int(vix_t)}↑"},
+        'sp500':  {'ok': sp_ok,    'val': float(sp_ytd),    'label': f"S&P {sp_t}%↓"},
+        'nasdaq': {'ok': nq_ok,    'val': float(nq_ytd),    'label': f"NASDAQ {nq_t}%↓"},
+        'fngu':   {'ok': fngu_ok,  'val': float(fngu_ytd),  'label': f"FNGU {fngu_t}%↓"},
+        'soxl':   {'ok': soxl_ok,  'val': float(soxl_ytd),  'label': f"SOXL {soxl_t}%↓"},
     }
 
     msg_snap = db.reference('messages').get()
@@ -148,6 +179,7 @@ def get_market_data():
         signal_status = "관망 구간"
 
     print(f"체크: {total_checks}/6 = {buy_readiness}%")
+    print(f"공포지수: {fear} ({fear_status})")
 
     return {
         "market": {
@@ -184,5 +216,7 @@ db.reference('signal').set(data['signal'])
 if data['tickers_data']:
     db.reference('tickers_data').update(data['tickers_data'])
 
-print("✅ 업데이트 완료:", data['market']['last_updated'])
+print("✅ 전체 업데이트 완료:", data['market']['last_updated'])
+print("공포지수:", data['market']['fear_greed'], data['market']['fear_greed_status'])
 print("매수준비도:", data['signal']['buy_readiness'], "%")
+print("활성 종목:", list(data['tickers_data'].keys()))
